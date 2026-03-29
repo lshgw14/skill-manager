@@ -1,6 +1,6 @@
 # Skill Manager
 
-A PowerShell-based skill synchronization tool for managing and syncing skills from multiple Git repositories to a target directory.
+A cross-platform skill synchronization tool for managing and syncing skills from multiple Git repositories to a target directory, available in both PowerShell and Python versions.
 
 ## Features
 
@@ -16,11 +16,16 @@ A PowerShell-based skill synchronization tool for managing and syncing skills fr
 
 ```
 skill-manager/
-├── sync-skills.ps1      # Main sync script
-├── csv-to-json.ps1      # CSV to JSON config converter
+├── powershell/          # PowerShell version (Windows only)
+│   ├── sync-skills.ps1  # Main sync script
+│   └── csv-to-json.ps1  # CSV to JSON config converter
+├── python/              # Python version (cross-platform)
+│   ├── sync-skills.py   # Main sync script
+│   └── csv-to-json.py   # CSV to JSON config converter
 ├── skills.csv           # Skill list (CSV format)
 ├── sync-config.json     # Sync configuration (JSON format)
-└── README.md            # This file
+├── README.md            # This file
+└── README_CN.md         # Chinese README
 ```
 
 ## Usage
@@ -38,34 +43,70 @@ E:\path\to\repo2,skill-name-3,Skill description 3
 
 ### 2. Convert CSV to JSON
 
+#### PowerShell Version (Windows only):
+
 ```powershell
-.\csv-to-json.ps1
+.\powershell\csv-to-json.ps1
 ```
 
 Or with custom parameters:
 
 ```powershell
-.\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+#### Python Version (cross-platform):
+
+```bash
+python python/csv-to-json.py
+```
+
+Or with custom parameters:
+
+```bash
+python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
 ### 3. Sync Skills
 
+#### PowerShell Version (Windows only):
+
 Sync all skills from config file:
 
 ```powershell
-.\sync-skills.ps1 -ConfigFile ".\sync-config.json"
+.\powershell\sync-skills.ps1 -ConfigFile ".\sync-config.json"
 ```
 
 Sync a single skill:
 
 ```powershell
-.\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
 Sync all skills from a repository:
 
 ```powershell
-.\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+#### Python Version (cross-platform):
+
+Sync all skills from config file:
+
+```bash
+python python/sync-skills.py -ConfigFile "sync-config.json"
+```
+
+Sync a single skill:
+
+```bash
+python python/sync-skills.py -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+Sync all skills from a repository:
+
+```bash
+python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
 ## Configuration Files
@@ -98,6 +139,7 @@ Sync all skills from a repository:
 
 ## How It Works
 
+### PowerShell Version:
 1. **csv-to-json.ps1**:
    - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
    - Merges skills by `repoPath` (one-to-many relationship)
@@ -108,11 +150,27 @@ Sync all skills from a repository:
    - For each skill: `git pull` → `robocopy /E /MIR`
    - Logs directory tree before and after copy for verification
 
+### Python Version:
+1. **csv-to-json.py**:
+   - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
+   - Merges skills by `repoPath` (one-to-many relationship)
+   - Updates `sync-config.json` (add/modify only, no deletion)
+
+2. **sync-skills.py**:
+   - Reads `sync-config.json`
+   - For each skill: `git pull` → cross-platform file copy
+   - Logs directory tree before and after copy for verification
+
 ## Requirements
 
+### PowerShell Version (Windows only):
 - Windows PowerShell 5.1+
 - Git (for `git pull`)
 - Robocopy (built-in on Windows)
+
+### Python Version (cross-platform):
+- Python 3.6+
+- Git (for `git pull`)
 
 ## Notes
 

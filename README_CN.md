@@ -1,6 +1,6 @@
 # Skill Manager 技能同步工具
 
-一个基于 PowerShell 的技能同步工具，用于从多个 Git 仓库同步技能文件到目标目录。
+一个跨平台的技能同步工具，用于从多个 Git 仓库同步技能文件到目标目录，同时提供 PowerShell 和 Python 版本。
 
 ## 功能特性
 
@@ -16,11 +16,16 @@
 
 ```
 skill-manager/
-├── sync-skills.ps1      # 主同步脚本
-├── csv-to-json.ps1      # CSV 转 JSON 配置工具
+├── powershell/          # PowerShell 版本（仅 Windows）
+│   ├── sync-skills.ps1  # 主同步脚本
+│   └── csv-to-json.ps1  # CSV 转 JSON 配置工具
+├── python/              # Python 版本（跨平台）
+│   ├── sync-skills.py   # 主同步脚本
+│   └── csv-to-json.py   # CSV 转 JSON 配置工具
 ├── skills.csv           # 技能列表（CSV 格式）
 ├── sync-config.json     # 同步配置（JSON 格式）
-└── README.md            # 说明文档
+├── README.md            # 英文说明文档
+└── README_CN.md         # 中文说明文档
 ```
 
 ## 使用方法
@@ -38,34 +43,70 @@ E:\path\to\repo2,skill-name-3,技能描述 3
 
 ### 2. 转换 CSV 为 JSON
 
+#### PowerShell 版本（仅 Windows）：
+
 ```powershell
-.\csv-to-json.ps1
+.\powershell\csv-to-json.ps1
 ```
 
 或使用自定义参数：
 
 ```powershell
-.\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+```
+
+#### Python 版本（跨平台）：
+
+```bash
+python python/csv-to-json.py
+```
+
+或使用自定义参数：
+
+```bash
+python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 ### 3. 同步技能
 
+#### PowerShell 版本（仅 Windows）：
+
 从配置文件同步所有技能：
 
 ```powershell
-.\sync-skills.ps1 -ConfigFile ".\sync-config.json"
+.\powershell\sync-skills.ps1 -ConfigFile ".\sync-config.json"
 ```
 
 同步单个技能：
 
 ```powershell
-.\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 同步仓库中的所有技能：
 
 ```powershell
-.\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+```
+
+#### Python 版本（跨平台）：
+
+从配置文件同步所有技能：
+
+```bash
+python python/sync-skills.py -ConfigFile "sync-config.json"
+```
+
+同步单个技能：
+
+```bash
+python python/sync-skills.py -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+```
+
+同步仓库中的所有技能：
+
+```bash
+python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 ## 配置文件说明
@@ -98,6 +139,7 @@ E:\path\to\repo2,skill-name-3,技能描述 3
 
 ## 工作原理
 
+### PowerShell 版本：
 1. **csv-to-json.ps1**：
    - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
    - 按 `repoPath` 合并技能（一对多关系）
@@ -108,11 +150,27 @@ E:\path\to\repo2,skill-name-3,技能描述 3
    - 对每个技能执行：`git pull` → `robocopy /E /MIR`
    - 复制前后打印目录树用于验证
 
+### Python 版本：
+1. **csv-to-json.py**：
+   - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
+   - 按 `repoPath` 合并技能（一对多关系）
+   - 更新 `sync-config.json`（只增不改，不删除）
+
+2. **sync-skills.py**：
+   - 读取 `sync-config.json`
+   - 对每个技能执行：`git pull` → 跨平台文件复制
+   - 复制前后打印目录树用于验证
+
 ## 系统要求
 
+### PowerShell 版本（仅 Windows）：
 - Windows PowerShell 5.1+
 - Git（用于 `git pull`）
 - Robocopy（Windows 内置）
+
+### Python 版本（跨平台）：
+- Python 3.6+
+- Git（用于 `git pull`）
 
 ## 注意事项
 

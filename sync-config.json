@@ -1,0 +1,88 @@
+﻿{
+    "targetPath":  "C:\\Users\\admin\\.trae-cn\\skills\\",
+    "repos":  [
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
+                      "skillNames":  [
+                                         "request-analyzer"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\vercel-labs\\skills\\skills",
+                      "skillNames":  [
+                                         "find-skills"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\wshobson\\agents\\plugins\\ui-design\\skills",
+                      "skillNames":  [
+                                         "interaction-design"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
+                      "skillNames":  [
+                                         "algorithmic-art",
+                                         "brand-guidelines",
+                                         "artifacts-builder",
+                                         "canvas-design",
+                                         "docx",
+                                         "pdf",
+                                         "pptx",
+                                         "xlsx",
+                                         "doc-coauthoring",
+                                         "frontend-design",
+                                         "internal-comms",
+                                         "mcp-builder",
+                                         "skills-creator",
+                                         "slack-gif-creator",
+                                         "theme-factory",
+                                         "webapp-testing",
+                                         "web-artifacts-builder"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\MiniMax-AI\\skills\\skills",
+                      "skillNames":  [
+                                         "frontend-dev",
+                                         "fullstack-dev",
+                                         "android-native-dev",
+                                         "ios-application-dev",
+                                         "flutter-dev",
+                                         "react-native-dev",
+                                         "shader-dev",
+                                         "minimax-pdf",
+                                         "pptx-generator",
+                                         "minimax-xlsx",
+                                         "minimax-docx"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\mattpocock\\skills",
+                      "skillNames":  [
+                                         "write-a-prd"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\coreyhaines31\\marketingskills\\skills",
+                      "skillNames":  [
+                                         "ab-test-setup",
+                                         "analytics-tracking",
+                                         "onboarding-cro"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
+                      "skillNames":  [
+                                         "brainstorming",
+                                         "writing-plans"
+                                     ]
+                  },
+                  {
+                      "repoPath":  "E:\\develop\\code\\open-source\\github\\skills\\YuJunZhiXue\\github-skill-forge",
+                      "skillNames":  [
+                                         "github-skill-forge"
+                                     ]
+                  }
+              ]
+}

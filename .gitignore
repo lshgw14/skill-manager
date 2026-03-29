@@ -1,0 +1,17 @@
+# Trae IDE config
+.trae/
+
+# PowerShell
+*.ps1~ 
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp

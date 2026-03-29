@@ -1,0 +1,46 @@
+repoPath,skillName,description
+E:\develop\code\open-source\github\skills\mattpocock\skills,write-a-prd,这是一个专为产品经理量身定制的 PRD（产品需求文档）撰写 Skill。
+E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills,request-analyzer,Request analyzer skill
+E:\develop\code\open-source\github\skills\obra\superpowers\skills,brainstorming,这个 Skill 可以帮助你将模糊想法通过结构化对话转化为清晰设计方案。
+E:\develop\code\open-source\github\skills\obra\superpowers\skills,writing-plans,这是一款将需求设计方案拆解为极细颗粒度执行计划的 Skill。
+E:\develop\code\open-source\github\skills\coreyhaines31\marketingskills\skills,ab-test-setup,这是一款专业的 A/B 实验设计Skill，帮助产品经理和增长团队设计统计上严格、结果可操作的实验。
+E:\develop\code\open-source\github\skills\coreyhaines31\marketingskills\skills,analytics-tracking,这是一款埋点方案设计与 Analytics 实施的专家级 Skill，覆盖事件命名规范、追踪计划文档、GTM 配置、UTM 参数策略和隐私合规的完整方法论，帮助产品和增长团队建立以决策为导向的数据体系，而非为了收集数据而收集数据。
+E:\develop\code\open-source\github\skills\coreyhaines31\marketingskills\skills,onboarding-cro,这是一款专注于新用户激活全链路优化的 Skill，帮助产品经理找到“用户 Aha 时刻”，设计让用户尽快到达第一个成功体验的 Onboarding 流程，并搭建多渠道的激活运营体系
+E:\develop\code\open-source\github\skills\wshobson\agents\plugins\ui-design\skills,interaction-design,前端交互设计
+E:\develop\code\open-source\github\skills\vercel-labs\skills\skills,find-skills,你只需要在 TRAE 中告知 AI 你需要什么，AI 就会调用这个 Skill 去帮你找 Skill，你不再需要去翻看各个 Skill 网站。
+E:\develop\code\open-source\github\skills\YuJunZhiXue\github-skill-forge,github-skill-forge,解决重复性信息检索的 Skill
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,algorithmic-art,使用 p5.js 创建生成艺术，支持种子随机性、流场和粒子系统。适用于通过代码生成艺术、流场或粒子系统等场景。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,brand-guidelines,将 Anthropic 官方品牌颜色和版式应用于各类制品。 适用于需要遵循公司品牌或设计规范的视觉格式化任务。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,canvas-design,使用设计哲学创建 PNG 和 PDF 格式的视觉艺术作品，如海报或设计图。适用于需要原创视觉设计的场景，避免版权问题。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,docx,支持 docx 文件的创建、编辑与分析，包括追踪修订、添加评论、保留格式和文本提取。适用于处理专业的 Word 文档。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,pdf,提供全面的 PDF 操作工具集，支持文本与表格提取、创建新 PDF、合并/拆分文档及处理表单。适用于需要以编程方式处理、生成或分析 PDF 的场景。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,pptx,支持 pptx 文件的创建、编辑与分析，包括处理布局、模板、图表和自动生成幻灯片。适用于各类演示文稿处理任务。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,xlsx,支持 xlsx 等电子表格文件的创建、编辑与分析，包括公式、格式化、数据分析和可视化。适用于需要处理电子表格数据的各类任务。
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,doc-coauthoring,引导用户通过结构化流程协作撰写文档，包括技术规范、提案、PRD、RFC、决策文档等
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,frontend-design,"创建具有独特性和生产级别质量的前端界面。
+        适用于构建避免通用 AI 审美的、视觉效果突出的 Web 组件、页面或应用。
+        https://mcpservers.org/claude-skills/anthropic/frontend-design"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,internal-comms,"辅助撰写各类内部沟通文档，如状态报告、领导层更新、公司通讯和常见问题解答。
+        适用于需要遵循公司内部沟通规范的写作任务。"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,mcp-builder,"指导创建高质量的 MCP （Model Context Protocol） 服务器，使语言模型能与外部服务和 API 交互。
+        适用于 Python （FastMCP） 或 Node/TypeScript （MCP SDK） 环境。"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,skills-creator,"指导创建或更新能扩展 Claude 能力的 Skills，包括添加专业知识、工作流或工具集成。
+        适用于为 Claude 开发新能力的场景。"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,slack-gif-creator,"创建针对 Slack 优化的动画 GIF，提供尺寸验证和动画。
+        适用于为 Slack 创建符合其大小限制的动画 GIF 或表情。"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,theme-factory,"提供 10 种预设主题或动态生成自定义主题，为各类制品（如幻灯片、文档）提供样式。
+        适用于需要对产出物进行专业视觉风格化的场景。"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,webapp-testing,"使用 Playwright 与本地 Web 应用进行交互和测试，支持验证前端功能、调试 UI 行为和捕获浏览器日志。
+        适用于 webapp AI 自动化测试场景"
+E:\develop\code\open-source\github\skills\anthropics\skills\skills,web-artifacts-builder,用于创建复杂的、多组件的 claude.ai HTML 构件的工具套件，使用现代前端技术（React、Tailwind CSS、shadcn/ui）
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,frontend-dev,融合 AI 媒体生成、高级动效、生成艺术，提供完整前端脚手架；
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,fullstack-dev,覆盖后端架构、认证、实时通信、数据库、生产加固，提供三阶段开发流程；
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,android-native-dev,现代 Android 技术栈（Kotlin/Jetpack Compose），Claude 无对应技能。
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,ios-application-dev,覆盖 UIKit/SwiftUI，强调 Apple HIG
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,flutter-dev,完整 Flutter 指南（状态管理、路由、性能）
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,react-native-dev,Expo 与 React Native 全覆盖，含部署与 CI/CD
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,shader-dev,独有 GLSL 着色器教程（光线步进、流体模拟等），Claude 无图形学技能。
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,minimax-pdf,内置设计系统、15 种封面样式，支持创建、填充、重排；
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,pptx-generator,支持 Node.js 与 Python 双实现，可 XML 编辑；
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,minimax-xlsx,支持 XML 模板、零格式损失编辑、财务格式；
+E:\develop\code\open-source\github\skills\MiniMax-AI\skills\skills,minimax-docx,基于 .NET OpenXML，带 XSD 验证，适合企业级高保真需求

@@ -172,6 +172,11 @@ python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\y
 - Python 3.6+
 - Git (for `git pull`)
 
+### Java Version (cross-platform):
+- Java 8+
+- Maven 3.6+
+- Git (for `git pull`)
+
 ## Notes
 
 - The CSV file will be automatically converted to UTF-8 if it uses a different encoding

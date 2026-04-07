@@ -11,6 +11,7 @@ A cross-platform skill synchronization tool for managing and syncing skills from
 - **Robocopy Powered**: Reliable file copying with mirror mode
 - **Encoding Auto-detection**: Automatic UTF-8 conversion for CSV files
 - **Detailed Logging**: Comprehensive logging with directory tree verification
+- **Batch Operations**: Execute multiple operations (init and sync) in sequence via configuration file
 
 ## File Structure
 

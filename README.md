@@ -23,8 +23,18 @@ skill-manager/
 ├── python/              # Python version (cross-platform)
 │   ├── sync-skills.py   # Main sync script
 │   └── csv-to-json.py   # CSV to JSON config converter
+├── java/                # Java version (cross-platform)
+│   ├── src/main/java/com/skillmanager/
+│   │   ├── CsvToJson.java       # CSV to JSON config converter
+│   │   ├── SyncSkills.java       # Main sync script
+│   │   ├── InitSkillRepo.java    # Repo initialization script
+│   │   └── BatchOperations.java  # Batch operations script
+│   ├── pom.xml          # Maven configuration
+│   ├── build.bat         # Windows build script
+│   └── build.sh         # Linux/macOS build script
 ├── skills.csv           # Skill list (CSV format)
 ├── sync-config.json     # Sync configuration (JSON format)
+├── batch-config.json    # Batch operations configuration (JSON format)
 ├── README.md            # This file
 └── README_CN.md         # Chinese README
 ```
@@ -66,6 +76,33 @@ Or with custom parameters:
 
 ```bash
 python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+#### Java Version (cross-platform):
+
+First, build the project:
+
+```bash
+# Windows
+.\java\build.bat
+
+# Linux/macOS
+chmod +x java/build.sh
+./java/build.sh
+```
+
+Then run the scripts:
+
+**Convert CSV to JSON:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson
+```
+
+Or with custom parameters:
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
 ### 3. Sync Skills
@@ -110,6 +147,44 @@ Sync all skills from a repository:
 python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
+#### Java Version (cross-platform):
+
+**Sync all skills from config file:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -ConfigFile "sync-config.json"
+```
+
+**Sync a single skill:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+**Sync all skills from a repository:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+```
+
+**Initialize a skill repository:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "https://github.com/anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
+```
+
+**Execute batch operations:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations
+```
+
+Or with custom configuration file:
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations -ConfigFile "batch-config.json"
+```
+
 ## Configuration Files
 
 ### skills.csv
@@ -124,7 +199,7 @@ python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\y
 
 ```json
 {
-    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+    "targetPath": "C:\\Users\admin\\.trae-cn\\skills\\",
     "repos": [
         {
             "repoPath": "E:\\path\\to\\repo1",
@@ -135,6 +210,42 @@ python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\y
             "skillNames": ["skill-name-3"]
         }
     ]
+}
+```
+
+### batch-config.json
+
+```json
+{
+  "batchOperations": [
+    {
+      "type": "init",
+      "repos": [
+        {
+          "repoUrl": "https://github.com/anthropics/skills.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+        },
+        {
+          "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+        }
+      ]
+    },
+    {
+      "type": "sync",
+      "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+      "repos": [
+        {
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
+          "skillNames": ["algorithmic-art", "brand-guidelines"]
+        },
+        {
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
+          "skillNames": ["request-analyzer"]
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -172,6 +283,18 @@ python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\y
    - Reads `sync-config.json`
    - For each skill: `git pull` → cross-platform file copy
    - Logs directory tree before and after copy for verification
+
+3. **InitSkillRepo.java**:
+   - Clones a remote Git repository to a local path
+   - Supports command-line parameters for repo URL and local path
+   - Provides detailed logging of the cloning process
+
+4. **BatchOperations.java**:
+   - Reads `batch-config.json` configuration file
+   - Executes multiple operations in sequence
+   - For `init` operations: calls `InitSkillRepo` to clone repositories
+   - For `sync` operations: creates temporary config and calls `SyncSkills`
+   - Provides comprehensive logging of all operations
 
 ## Requirements
 

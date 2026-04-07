@@ -1,0 +1,39 @@
+{
+  "batchOperations": [
+    {
+      "type": "init",
+      "repos": [
+        {
+          "repoUrl": "https://github.com/anthropics/skills.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+        },
+        {
+          "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+        },
+        {
+          "repoUrl": "https://github.com/obra/superpowers.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills"
+        }
+      ]
+    },
+    {
+      "type": "sync",
+      "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+      "repos": [
+        {
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
+          "skillNames": ["algorithmic-art", "brand-guidelines"]
+        },
+        {
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
+          "skillNames": ["request-analyzer"]
+        },
+        {
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
+          "skillNames": ["brainstorming", "writing-plans"]
+        }
+      ]
+    }
+  ]
+}

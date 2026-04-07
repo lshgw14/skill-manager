@@ -1,5 +1,6 @@
 package com.skillmanager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
@@ -43,9 +44,11 @@ public class SyncSkills {
 
             // 读取和解析 JSON 配置文件
             List<Map<String, Object>> configs = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
+            
             try (BufferedReader reader = Files.newBufferedReader(configPath)) {
-                String jsonContent = reader.lines().collect(java.util.stream.Collectors.joining());
-                configs = CsvToJson.parseJson(jsonContent);
+                // 使用 Jackson 解析 JSON
+                configs = objectMapper.readValue(reader, List.class);
             } catch (Exception e) {
                 writeLog(String.format("ERROR: Invalid JSON config file: %s", e.getMessage()));
                 System.exit(1);
@@ -57,11 +60,12 @@ public class SyncSkills {
 
             // 遍历配置项并执行同步
             List<Map<String, Object>> configList;
-            if (configs.isEmpty() && !CsvToJson.parseJson("{}").isEmpty()) {
+            if (configs.isEmpty()) {
                 // 处理单个对象的情况
                 configList = new ArrayList<>();
                 try {
-                    configList.add(CsvToJson.parseJsonObject(Files.readString(configPath)));
+                    Map<String, Object> singleConfig = objectMapper.readValue(Files.readString(configPath), Map.class);
+                    configList.add(singleConfig);
                 } catch (IOException e) {
                     writeLog(String.format("ERROR: Failed to read config file: %s", e.getMessage()));
                     System.exit(1);

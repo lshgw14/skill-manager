@@ -1,5 +1,7 @@
 package com.skillmanager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -78,13 +80,14 @@ public class CsvToJson {
         // 读取现有 JSON 文件
         List<Map<String, Object>> jsonConfig = new ArrayList<>();
         Path jsonPath = Paths.get(jsonFile);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        
         if (Files.exists(jsonPath)) {
             writeLog(String.format("Reading existing JSON file: %s", jsonFile));
             try (BufferedReader reader = Files.newBufferedReader(jsonPath, StandardCharsets.UTF_8)) {
-                // 简单的 JSON 解析
-                String jsonContent = reader.lines().collect(java.util.stream.Collectors.joining());
-                // 这里使用简单的解析方式，实际项目中可以使用 JSON 库
-                jsonConfig = parseJson(jsonContent);
+                // 使用 Jackson 解析 JSON
+                jsonConfig = objectMapper.readValue(reader, List.class);
             } catch (Exception e) {
                 writeLog("WARNING: Invalid JSON file, creating new configuration");
                 jsonConfig = new ArrayList<>();
@@ -171,14 +174,18 @@ public class CsvToJson {
         // 保存 JSON
         if (modified) {
             try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
-                writer.write(toJson(jsonConfig));
+                objectMapper.writeValue(writer, jsonConfig);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to save JSON file: %s", e.getMessage()));
                 System.exit(1);
             }
             writeLog(String.format("JSON config saved to: %s", jsonFile));
             writeLog("Config content:");
-            System.out.println(toJson(jsonConfig));
+            try {
+                objectMapper.writeValue(System.out, jsonConfig);
+            } catch (IOException e) {
+                writeLog(String.format("ERROR: Failed to write JSON to console: %s", e.getMessage()));
+            }
         } else {
             writeLog("No updates needed");
         }
@@ -249,203 +256,5 @@ public class CsvToJson {
             writeLog(String.format("ERROR: Failed to convert encoding: %s", e.getMessage()));
             return false;
         }
-    }
-
-    public static List<Map<String, Object>> parseJson(String json) {
-        // 简单的 JSON 解析，实际项目中可以使用 JSON 库
-        List<Map<String, Object>> result = new ArrayList<>();
-        try {
-            // 移除首尾的空白字符
-            json = json.trim();
-            if (json.startsWith("[")) {
-                // 数组形式
-                json = json.substring(1, json.length() - 1);
-                String[] elements = splitJsonArray(json);
-                for (String element : elements) {
-                    if (!element.trim().isEmpty()) {
-                        result.add(parseJsonObject(element));
-                    }
-                }
-            } else if (json.startsWith("{")) {
-                // 对象形式
-                result.add(parseJsonObject(json));
-            }
-        } catch (Exception e) {
-            writeLog(String.format("ERROR: Failed to parse JSON: %s", e.getMessage()));
-        }
-        return result;
-    }
-
-    public static Map<String, Object> parseJsonObject(String json) {
-        Map<String, Object> result = new HashMap<>();
-        json = json.trim();
-        if (!json.startsWith("{") || !json.endsWith("}")) {
-            return result;
-        }
-
-        json = json.substring(1, json.length() - 1);
-        String[] pairs = splitJsonPairs(json);
-        for (String pair : pairs) {
-            if (pair.trim().isEmpty()) {
-                continue;
-            }
-            int colonIndex = pair.indexOf(':');
-            if (colonIndex == -1) {
-                continue;
-            }
-            String key = pair.substring(0, colonIndex).trim().replace('"', ' ').trim();
-            String valueStr = pair.substring(colonIndex + 1).trim();
-
-            Object value;
-            if (valueStr.startsWith("{")) {
-                value = parseJsonObject(valueStr);
-            } else if (valueStr.startsWith("[")) {
-                value = parseJsonArray(valueStr);
-            } else if (valueStr.startsWith("\"")) {
-                value = valueStr.substring(1, valueStr.length() - 1);
-            } else if (valueStr.equals("true")) {
-                value = true;
-            } else if (valueStr.equals("false")) {
-                value = false;
-            } else if (valueStr.equals("null")) {
-                value = null;
-            } else {
-                try {
-                    value = Double.parseDouble(valueStr);
-                } catch (NumberFormatException e) {
-                    value = valueStr;
-                }
-            }
-            result.put(key, value);
-        }
-        return result;
-    }
-
-    public static List<Object> parseJsonArray(String json) {
-        List<Object> result = new ArrayList<>();
-        json = json.trim();
-        if (!json.startsWith("[") || !json.endsWith("]")) {
-            return result;
-        }
-
-        json = json.substring(1, json.length() - 1);
-        String[] elements = splitJsonArray(json);
-        for (String element : elements) {
-            if (element.trim().isEmpty()) {
-                continue;
-            }
-            if (element.trim().startsWith("{")) {
-                result.add(parseJsonObject(element));
-            } else if (element.trim().startsWith("[")) {
-                result.add(parseJsonArray(element));
-            } else if (element.trim().startsWith("\"")) {
-                result.add(element.trim().substring(1, element.trim().length() - 1));
-            } else if (element.trim().equals("true")) {
-                result.add(true);
-            } else if (element.trim().equals("false")) {
-                result.add(false);
-            } else if (element.trim().equals("null")) {
-                result.add(null);
-            } else {
-                try {
-                    result.add(Double.parseDouble(element.trim()));
-                } catch (NumberFormatException e) {
-                    result.add(element.trim());
-                }
-            }
-        }
-        return result;
-    }
-
-    private static String[] splitJsonArray(String json) {
-        List<String> result = new ArrayList<>();
-        int depth = 0;
-        StringBuilder current = new StringBuilder();
-        for (char c : json.toCharArray()) {
-            if (c == '{' || c == '[') {
-                depth++;
-            } else if (c == '}' || c == ']') {
-                depth--;
-            }
-            if (c == ',' && depth == 0) {
-                result.add(current.toString());
-                current = new StringBuilder();
-            } else {
-                current.append(c);
-            }
-        }
-        if (current.length() > 0) {
-            result.add(current.toString());
-        }
-        return result.toArray(new String[0]);
-    }
-
-    private static String[] splitJsonPairs(String json) {
-        List<String> result = new ArrayList<>();
-        int depth = 0;
-        boolean inQuotes = false;
-        StringBuilder current = new StringBuilder();
-        for (char c : json.toCharArray()) {
-            if (c == '"') {
-                inQuotes = !inQuotes;
-            }
-            if (!inQuotes) {
-                if (c == '{' || c == '[') {
-                    depth++;
-                } else if (c == '}' || c == ']') {
-                    depth--;
-                }
-                if (c == ',' && depth == 0) {
-                    result.add(current.toString());
-                    current = new StringBuilder();
-                    continue;
-                }
-            }
-            current.append(c);
-        }
-        if (current.length() > 0) {
-            result.add(current.toString());
-        }
-        return result.toArray(new String[0]);
-    }
-
-    private static String toJson(Object obj) {
-        if (obj == null) {
-            return "null";
-        }
-        if (obj instanceof String) {
-            return "\"" + ((String) obj).replace("\"", "\\\"") + "\"";
-        }
-        if (obj instanceof Number || obj instanceof Boolean) {
-            return obj.toString();
-        }
-        if (obj instanceof List) {
-            StringBuilder sb = new StringBuilder("[");
-            List<?> list = (List<?>) obj;
-            for (int i = 0; i < list.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                sb.append(toJson(list.get(i)));
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-        if (obj instanceof Map) {
-            StringBuilder sb = new StringBuilder("{");
-            Map<?, ?> map = (Map<?, ?>) obj;
-            int i = 0;
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                sb.append('"').append(entry.getKey()).append('"').append(": ");
-                sb.append(toJson(entry.getValue()));
-                i++;
-            }
-            sb.append("}");
-            return sb.toString();
-        }
-        return obj.toString();
     }
 }

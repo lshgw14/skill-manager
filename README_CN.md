@@ -24,12 +24,17 @@ skill-manager/
 │   ├── sync-skills.py   # 主同步脚本
 │   └── csv-to-json.py   # CSV 转 JSON 配置工具
 ├── java/                # Java 版本（跨平台）
-│   ├── src/             # Java 源代码
-│   ├── build.bat        # Windows 构建脚本
-│   ├── build.sh         # Linux/macOS 构建脚本
-│   └── pom.xml          # Maven 配置文件
+│   ├── src/main/java/com/skillmanager/
+│   │   ├── CsvToJson.java       # CSV 转 JSON 配置工具
+│   │   ├── SyncSkills.java       # 主同步脚本
+│   │   ├── InitSkillRepo.java    # 仓库初始化脚本
+│   │   └── BatchOperations.java  # 批量操作脚本
+│   ├── pom.xml          # Maven 配置
+│   ├── build.bat         # Windows 构建脚本
+│   └── build.sh         # Linux/macOS 构建脚本
 ├── skills.csv           # 技能列表（CSV 格式）
 ├── sync-config.json     # 同步配置（JSON 格式）
+├── batch-config.json    # 批量操作配置（JSON 格式）
 ├── README.md            # 英文说明文档
 └── README_CN.md         # 中文说明文档
 ```
@@ -222,6 +227,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 读取 `sync-config.json`
    - 对每个技能执行：`git pull` → 跨平台文件复制
    - 复制前后打印目录树用于验证
+
+3. **InitSkillRepo.java**：
+   - 克隆远程 Git 仓库到本地路径
+   - 支持命令行参数指定仓库 URL 和本地路径
+   - 提供详细的克隆过程日志
+
+4. **BatchOperations.java**：
+   - 读取 `batch-config.json` 配置文件
+   - 顺序执行多个操作
+   - 对于 `init` 操作：调用 `InitSkillRepo` 克隆仓库
+   - 对于 `sync` 操作：创建临时配置并调用 `SyncSkills`
+   - 提供所有操作的详细日志
 
 ## 系统要求
 

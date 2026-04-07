@@ -161,6 +161,17 @@ python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\y
    - For each skill: `git pull` → cross-platform file copy
    - Logs directory tree before and after copy for verification
 
+### Java Version:
+1. **CsvToJson.java**:
+   - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
+   - Merges skills by `repoPath` (one-to-many relationship)
+   - Updates `sync-config.json` (add/modify only, no deletion)
+
+2. **SyncSkills.java**:
+   - Reads `sync-config.json`
+   - For each skill: `git pull` → cross-platform file copy
+   - Logs directory tree before and after copy for verification
+
 ## Requirements
 
 ### PowerShell Version (Windows only):

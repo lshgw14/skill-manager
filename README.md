@@ -255,6 +255,30 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 }
 ```
 
+### init-config.json
+
+```json
+{
+  "repos": [
+    {
+      "repoName": "anthropics_skills",
+      "repoUrl": "https://github.com/anthropics/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+    },
+    {
+      "repoName": "staruhub_ClaudeSkills",
+      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+    }
+  ]
+}
+```
+
+**Fields explanation:**
+- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "https://github.com/anthropics/skills.git")
+- `repoUrl`: The Git repository URL
+- `localPath`: The local path to clone the repository to
+
 ## How It Works
 
 ### PowerShell Version:

@@ -247,16 +247,23 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 {
   "repos": [
     {
+      "repoName": "anthropics_skills",
       "repoUrl": "https://github.com/anthropics/skills.git",
       "localPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills"
     },
     {
+      "repoName": "staruhub_ClaudeSkills",
       "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
       "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
     }
   ]
 }
 ```
+
+**字段说明：**
+- `repoName`: 仓库的友好名称（例如，对于 "https://github.com/anthropics/skills.git"，repoName 就是 "anthropics_skills"）
+- `repoUrl`: Git 仓库 URL
+- `localPath`: 克隆仓库的本地路径
 
 ## 工作原理
 

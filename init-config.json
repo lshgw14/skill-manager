@@ -1,0 +1,12 @@
+{
+  "repos": [
+    {
+      "repoUrl": "https://github.com/anthropics/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+    },
+    {
+      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+    }
+  ]
+}

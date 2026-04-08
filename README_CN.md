@@ -165,6 +165,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
+**初始化技能仓库：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "https://github.com/anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
+```
+
+**从配置文件初始化多个仓库：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -ConfigFile "init-config.json"
+```
+
 ## 配置文件说明
 
 ### skills.csv
@@ -179,17 +191,70 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 
 ```json
 {
-    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+    "targetPath": "C:\Users\admin\.trae-cn\skills\",
     "repos": [
         {
-            "repoPath": "E:\\path\\to\\repo1",
+            "repoPath": "E:\path\to\repo1",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
-            "repoPath": "E:\\path\\to\\repo2",
+            "repoPath": "E:\path\to\repo2",
             "skillNames": ["skill-name-3"]
         }
     ]
+}
+```
+
+### batch-config.json
+
+```json
+{
+  "batchOperations": [
+    {
+      "type": "init",
+      "repos": [
+        {
+          "repoUrl": "https://github.com/anthropics/skills.git",
+          "localPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills"
+        },
+        {
+          "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+          "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
+        }
+      ]
+    },
+    {
+      "type": "sync",
+      "targetPath": "C:\Users\admin\.trae-cn\skills\",
+      "repos": [
+        {
+          "repoPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills",
+          "skillNames": ["algorithmic-art", "brand-guidelines"]
+        },
+        {
+          "repoPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills",
+          "skillNames": ["request-analyzer"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### init-config.json
+
+```json
+{
+  "repos": [
+    {
+      "repoUrl": "https://github.com/anthropics/skills.git",
+      "localPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills"
+    },
+    {
+      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+      "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
+    }
+  ]
 }
 ```
 

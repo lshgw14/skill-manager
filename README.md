@@ -80,6 +80,14 @@ python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" 
 
 #### Java Version (cross-platform):
 
+The Java version uses Eclipse JGIT library for Git operations, which provides better cross-platform compatibility and eliminates the need for Git command line tool.
+
+**Advantages of using JGIT:**
+- No dependency on Git command line tool
+- Better cross-platform compatibility
+- More flexible error handling
+- Cleaner code structure
+
 First, build the project:
 
 ```bash

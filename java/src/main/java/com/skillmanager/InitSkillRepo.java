@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+
 import java.io.*;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
@@ -121,31 +124,21 @@ public class InitSkillRepo {
         writeLog(String.format("Cloning repository: %s...", repoName));
 
         try {
-            ProcessBuilder pb = new ProcessBuilder("git", "clone", repoUrl, localPath);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
+            Git.cloneRepository()
+                .setURI(repoUrl)
+                .setDirectory(localPathObj.toFile())
+                .call();
             
-            // 读取输出
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    writeLog(String.format("Git output: %s", line));
-                }
+            writeLog("Repository cloned successfully!");
+            // 验证克隆结果
+            Path clonedDir = localPathObj;
+            if (Files.exists(clonedDir) && Files.isDirectory(clonedDir)) {
+                writeLog("Cloned repository contents:");
+                listDirectory(clonedDir.toString());
             }
-            
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                writeLog("Repository cloned successfully!");
-                // 验证克隆结果
-                Path clonedDir = localPathObj;
-                if (Files.exists(clonedDir) && Files.isDirectory(clonedDir)) {
-                    writeLog("Cloned repository contents:");
-                    listDirectory(clonedDir.toString());
-                }
-            } else {
-                writeLog("ERROR: Failed to clone repository");
-                System.exit(1);
-            }
+        } catch (GitAPIException e) {
+            writeLog(String.format("ERROR: Git clone error: %s", e.getMessage()));
+            System.exit(1);
         } catch (Exception e) {
             writeLog(String.format("ERROR: Git clone error: %s", e.getMessage()));
             System.exit(1);

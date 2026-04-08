@@ -1,6 +1,8 @@
 package com.skillmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import java.io.*;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
@@ -201,22 +203,12 @@ public class SyncSkills {
         // 更新源仓库（git pull）
         writeLog(String.format("Updating source repo: %s", repoPath));
         try {
-            ProcessBuilder pb = new ProcessBuilder("git", "pull");
-            pb.directory(repoPathObj.toFile());
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    StringBuilder output = new StringBuilder();
-                    while ((line = reader.readLine()) != null) {
-                        output.append(line).append("\n");
-                    }
-                    writeLog("WARNING: git pull failed, continuing with existing code...");
-                    writeLog(String.format("Git output: %s", output.toString()));
-                }
+            try (Git git = Git.open(repoPathObj.toFile())) {
+                git.pull().call();
             }
+        } catch (GitAPIException e) {
+            writeLog("WARNING: git pull failed, continuing with existing code...");
+            writeLog(String.format("Git error: %s", e.getMessage()));
         } catch (Exception e) {
             writeLog(String.format("WARNING: git pull error: %s", e.getMessage()));
         }

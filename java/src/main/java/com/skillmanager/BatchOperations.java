@@ -110,7 +110,11 @@ public class BatchOperations {
 
         for (Map<String, Object> repo : repos) {
             repoCount++;
-            writeLog(String.format("\nInitializing repo %d of %d", repoCount, repos.size()));
+            String repoName = (String) repo.get("repoName");
+            if (repoName == null) {
+                repoName = "Unknown";
+            }
+            writeLog(String.format("\nInitializing repo %d of %d: %s", repoCount, repos.size(), repoName));
 
             String repoUrl = (String) repo.get("repoUrl");
             String localPath = (String) repo.get("localPath");
@@ -190,6 +194,19 @@ public class BatchOperations {
         targetGroup.put("targetPath", targetPath);
         targetGroup.put("repos", repos);
         syncConfig.add(targetGroup);
+
+        // 打印同步操作的仓库信息
+        writeLog("\nSyncing repositories:");
+        int repoIndex = 0;
+        for (Map<String, Object> repo : repos) {
+            repoIndex++;
+            String repoName = (String) repo.get("repoName");
+            if (repoName == null) {
+                repoName = "Unknown";
+            }
+            String repoPath = (String) repo.get("repoPath");
+            writeLog(String.format("%d. %s - %s", repoIndex, repoName, repoPath));
+        }
 
         // 写入临时配置文件
         Path tempConfigPath = Paths.get("temp-sync-config.json");

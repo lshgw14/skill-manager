@@ -228,12 +228,19 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
       "type": "init",
       "repos": [
         {
+          "repoName": "anthropics_skills",
           "repoUrl": "https://github.com/anthropics/skills.git",
           "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
         },
         {
+          "repoName": "staruhub_ClaudeSkills",
           "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
           "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+        },
+        {
+          "repoName": "obra_superpowers",
+          "repoUrl": "https://github.com/obra/superpowers.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills"
         }
       ]
     },
@@ -242,18 +249,35 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
       "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
       "repos": [
         {
+          "repoName": "anthropics_skills",
           "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
           "skillNames": ["algorithmic-art", "brand-guidelines"]
         },
         {
+          "repoName": "staruhub_ClaudeSkills",
           "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
           "skillNames": ["request-analyzer"]
+        },
+        {
+          "repoName": "obra_superpowers",
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
+          "skillNames": ["brainstorming", "writing-plans"]
         }
       ]
     }
   ]
 }
 ```
+
+**Fields explanation for init operation:**
+- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "https://github.com/anthropics/skills.git")
+- `repoUrl`: The Git repository URL
+- `localPath`: The local path to clone the repository to
+
+**Fields explanation for sync operation:**
+- `repoName`: A friendly name for the repository
+- `repoPath`: The local path to the repository
+- `skillNames`: List of skill names to sync
 
 ### init-config.json
 

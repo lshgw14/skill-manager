@@ -88,12 +88,16 @@ public class SyncSkills {
                 }
 
                 for (Map<String, Object> repo : repos) {
-                    String repoPathFromConfig = (String) repo.get("repoPath");
-                    Object skillNamesObj = repo.get("skillNames");
+                    String repoName = (String) repo.get("repoName");
+                        if (repoName == null) {
+                            repoName = "Unknown";
+                        }
+                        String repoPathFromConfig = (String) repo.get("repoPath");
+                        Object skillNamesObj = repo.get("skillNames");
 
-                    if (repoPathFromConfig == null || skillNamesObj == null) {
-                        continue;
-                    }
+                        if (repoPathFromConfig == null || skillNamesObj == null) {
+                            continue;
+                        }
 
                     List<String> skillNames;
                     if (skillNamesObj instanceof String) {
@@ -110,9 +114,9 @@ public class SyncSkills {
                     }
 
                     for (String skill : skillNames) {
-                        writeLog(String.format("Processing config: Source=%s, Skill=%s, Target=%s", repoPathFromConfig, skill, groupTargetPath));
+                            writeLog(String.format("Processing config: Source=%s (Repo: %s), Skill=%s, Target=%s", repoPathFromConfig, repoName, skill, groupTargetPath));
 
-                        boolean result = syncSkill(skill, repoPathFromConfig, groupTargetPath);
+                            boolean result = syncSkill(skill, repoPathFromConfig, groupTargetPath);
 
                         if (result) {
                             successCount++;

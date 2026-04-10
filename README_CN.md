@@ -202,16 +202,23 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     "targetPath": "C:\Users\admin\.trae-cn\skills\",
     "repos": [
         {
+            "repoName": "anthropics_skills",
             "repoPath": "E:\path\to\repo1",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
+            "repoName": "staruhub_ClaudeSkills",
             "repoPath": "E:\path\to\repo2",
             "skillNames": ["skill-name-3"]
         }
     ]
 }
 ```
+
+**字段说明：**
+- `repoName`: 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"）
+- `repoPath`: 仓库的本地路径
+- `skillNames`: 要同步的技能名称列表
 
 ### batch-config.json
 

@@ -213,19 +213,26 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 
 ```json
 {
-    "targetPath": "C:\\Users\admin\\.trae-cn\\skills\\",
+    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
     "repos": [
         {
+            "repoName": "anthropics_skills",
             "repoPath": "E:\\path\\to\\repo1",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
+            "repoName": "staruhub_ClaudeSkills",
             "repoPath": "E:\\path\\to\\repo2",
             "skillNames": ["skill-name-3"]
         }
     ]
 }
 ```
+
+**Fields explanation:**
+- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "E:\develop\code\open-source\github\skills\anthropics\skills\skills")
+- `repoPath`: The local path to the repository
+- `skillNames`: List of skill names to sync
 
 ### batch-config.json
 

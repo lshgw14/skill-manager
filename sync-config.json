@@ -1,29 +1,38 @@
 [ {
   "repos" : [ {
+    "repoName" : "anthropics_skills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
     "skillNames" : [ "algorithmic-art", "brand-guidelines", "canvas-design", "docx", "pdf", "pptx", "xlsx", "doc-coauthoring", "frontend-design", "internal-comms", "mcp-builder", "skills-creator", "slack-gif-creator", "theme-factory", "webapp-testing", "web-artifacts-builder" ]
   }, {
+    "repoName" : "obra_superpowers",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
     "skillNames" : [ "brainstorming", "writing-plans" ]
   }, {
+    "repoName" : "staruhub_ClaudeSkills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
     "skillNames" : [ "request-analyzer" ]
   }, {
+    "repoName" : "mattpocock_skills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\mattpocock\\skills",
     "skillNames" : [ "write-a-prd" ]
   }, {
+    "repoName" : "coreyhaines31_marketingskills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\coreyhaines31\\marketingskills\\skills",
     "skillNames" : [ "ab-test-setup", "analytics-tracking", "onboarding-cro" ]
   }, {
+    "repoName" : "wshobson_ui-design",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\wshobson\\agents\\plugins\\ui-design\\skills",
     "skillNames" : [ "interaction-design" ]
   }, {
+    "repoName" : "MiniMax-AI_skills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\MiniMax-AI\\skills\\skills",
     "skillNames" : [ "frontend-dev", "fullstack-dev", "android-native-dev", "ios-application-dev", "flutter-dev", "react-native-dev", "shader-dev", "minimax-pdf", "pptx-generator", "minimax-xlsx", "minimax-docx" ]
   }, {
+    "repoName" : "vercel-labs_skills",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\vercel-labs\\skills\\skills",
     "skillNames" : [ "find-skills" ]
   }, {
+    "repoName" : "YuJunZhiXue_github-skill-forge",
     "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\YuJunZhiXue\\github-skill-forge",
     "skillNames" : [ "github-skill-forge" ]
   } ],

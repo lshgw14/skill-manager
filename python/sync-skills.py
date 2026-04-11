@@ -247,12 +247,13 @@ def main():
             for repo in repos:
                 repo_path = repo.get('repoPath')
                 skill_names = repo.get('skillNames', [])
+                repo_name = repo.get('repoName', 'Unknown')
                 
                 if isinstance(skill_names, str):
                     skill_names = [skill_names]
                 
                 for skill_name in skill_names:
-                    write_log(f"Processing config: Source={repo_path}, Skill={skill_name}, Target={target_path}")
+                    write_log(f"Processing config: Source={repo_path} (Repo: {repo_name}), Skill={skill_name}, Target={target_path}")
                     
                     result = sync_skill(skill_name, repo_path, target_path)
                     

@@ -12,6 +12,7 @@ A cross-platform skill synchronization tool for managing and syncing skills from
 - **Encoding Auto-detection**: Automatic UTF-8 conversion for CSV files
 - **Detailed Logging**: Comprehensive logging with directory tree verification
 - **Batch Operations**: Execute multiple operations (init and sync) in sequence via configuration file
+- **SSH Support**: Clone repositories using SSH URLs (Java version)
 
 ## File Structure
 
@@ -46,10 +47,10 @@ skill-manager/
 Edit `skills.csv` to add your skills:
 
 ```csv
-repoPath,skillName,description
-E:\path\to\repo1,skill-name-1,Skill description 1
-E:\path\to\repo1,skill-name-2,Skill description 2
-E:\path\to\repo2,skill-name-3,Skill description 3
+repoPath,repoName,localPath,repoUrl,skillName,description
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-1,Skill description 1
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-2,Skill description 2
+E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staruhub/ClaudeSkills.git,skill-name-3,Skill description 3
 ```
 
 ### 2. Convert CSV to JSON
@@ -175,10 +176,16 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
-**Initialize a skill repository:**
+**Initialize a skill repository (HTTPS):**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "https://github.com/anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
+```
+
+**Initialize a skill repository (SSH):**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "git@github.com:anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
 ```
 
 **Initialize multiple repositories from config file:**
@@ -206,6 +213,9 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 | Column | Description |
 |--------|-------------|
 | repoPath | Path to the Git repository containing skills |
+| repoName | A friendly name for the repository (e.g., "anthropics_skills" for "E:\develop\code\open-source\github\skills\anthropics\skills\skills") |
+| localPath | Local path to the Git repository (used for init-config.json) |
+| repoUrl | GitHub repository URL (e.g., "https://github.com/anthropics/skills.git") |
 | skillName | Name of the skill directory to sync |
 | description | Brief description of the skill |
 
@@ -213,16 +223,20 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 
 ```json
 {
-    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+    "targetPath": "C:\Users\admin\.trae-cn\skills\",
     "repos": [
         {
             "repoName": "anthropics_skills",
-            "repoPath": "E:\\path\\to\\repo1",
+            "repoPath": "E:\path\to\repo1",
+            "localPath": "E:\path\to\repo1",
+            "repoUrl": "https://github.com/anthropics/skills.git",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
             "repoName": "staruhub_ClaudeSkills",
-            "repoPath": "E:\\path\\to\\repo2",
+            "repoPath": "E:\path\to\repo2",
+            "localPath": "E:\path\to\repo2",
+            "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
             "skillNames": ["skill-name-3"]
         }
     ]
@@ -306,8 +320,8 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     },
     {
       "repoName": "staruhub_ClaudeSkills",
-      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+      "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
+      "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
     }
   ]
 }
@@ -325,6 +339,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
    - Merges skills by `repoPath` (one-to-many relationship)
    - Updates `sync-config.json` (add/modify only, no deletion)
+   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
 
 2. **sync-skills.ps1**:
    - Reads `sync-config.json`
@@ -336,6 +351,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
    - Merges skills by `repoPath` (one-to-many relationship)
    - Updates `sync-config.json` (add/modify only, no deletion)
+   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
 
 2. **sync-skills.py**:
    - Reads `sync-config.json`
@@ -347,6 +363,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
    - Merges skills by `repoPath` (one-to-many relationship)
    - Updates `sync-config.json` (add/modify only, no deletion)
+   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
 
 2. **SyncSkills.java**:
    - Reads `sync-config.json`
@@ -357,6 +374,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Clones a remote Git repository to a local path
    - Supports command-line parameters for repo URL and local path
    - Provides detailed logging of the cloning process
+   - Supports both HTTPS and SSH URLs for cloning
 
 4. **BatchOperations.java**:
    - Reads `batch-config.json` configuration file
@@ -380,6 +398,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 - Java 8+
 - Maven 3.6+
 - Git (for `git pull`)
+- SSH support: Uses Apache MINA SSHD for SSH connections
 
 ## Notes
 

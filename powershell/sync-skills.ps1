@@ -1,4 +1,4 @@
-﻿<#
+﻿﻿<#
 .SYNOPSIS
     Skill Sync Script - Sync skill files from source repo to target directory
 
@@ -225,26 +225,29 @@ if ($ConfigFile) {
         $targetPath = $targetGroup.targetPath
         
         foreach ($repo in $targetGroup.repos) {
-            $repoPath = $repo.repoPath
-            $skillNames = $repo.skillNames
-            
-            if ($skillNames -is [string]) {
-                $skillNames = @($skillNames)
-            }
-            
-            foreach ($skillName in $skillNames) {
-                Write-Log "Processing config: Source=$repoPath, Skill=$skillName, Target=$targetPath"
-                
-                $result = Sync-Skill -SkillName $skillName -RepoPath $repoPath -TargetPath $targetPath
-                
-                if ($result) {
-                    $successCount++
+                $repoPath = $repo.repoPath
+                $skillNames = $repo.skillNames
+                $repoName = $repo.repoName
+                if (!$repoName) {
+                    $repoName = "Unknown"
                 }
-                else {
-                    $failCount++
+                
+                if ($skillNames -is [string]) {
+                    $skillNames = @($skillNames)
+                }
+                
+                foreach ($skillName in $skillNames) {
+                    Write-Log "Processing config: Source=$repoPath (Repo: $repoName), Skill=$skillName, Target=$targetPath"
+                    
+                    $result = Sync-Skill -SkillName $skillName -RepoPath $repoPath -TargetPath $targetPath
+                    
+                    if ($result) {
+                        $successCount++
+                    } else {
+                        $failCount++
+                    }
                 }
             }
-        }
     }
 
     Write-Log "Config file processing completed. Success: $successCount, Failed: $failCount"

@@ -114,19 +114,26 @@ public class InitSkillRepo {
             writeLog(String.format("Creating local directory: %s", localPath));
             try {
                 Files.createDirectories(localPathObj);
+                writeLog(String.format("Local directory created successfully: %s", localPath));
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to create local directory: %s", e.getMessage()));
                 System.exit(1);
             }
+        } else {
+            writeLog(String.format("Local directory already exists: %s", localPath));
         }
 
         // 执行git clone命令
         writeLog(String.format("Cloning repository: %s...", repoName));
+        writeLog(String.format("Repository URL: %s", repoUrl));
+        writeLog(String.format("Local directory: %s", localPath));
 
         try {
+            writeLog("Setting up Git clone options...");
             Git.cloneRepository()
                 .setURI(repoUrl)
                 .setDirectory(localPathObj.toFile())
+                .setTimeout(300) // 设置300秒超时
                 .call();
             
             writeLog("Repository cloned successfully!");
@@ -138,9 +145,19 @@ public class InitSkillRepo {
             }
         } catch (GitAPIException e) {
             writeLog(String.format("ERROR: Git clone error: %s", e.getMessage()));
+            writeLog("Possible causes:");
+            writeLog("1. Network connection issues");
+            writeLog("2. SSH authentication failure (check your SSH keys)");
+            writeLog("3. Invalid repository URL");
+            writeLog("4. Repository does not exist");
+            writeLog("5. Firewall or proxy restrictions");
+            writeLog("Detailed error stack trace:");
+            e.printStackTrace();
             System.exit(1);
         } catch (Exception e) {
             writeLog(String.format("ERROR: Git clone error: %s", e.getMessage()));
+            writeLog("Detailed error stack trace:");
+            e.printStackTrace();
             System.exit(1);
         }
     }

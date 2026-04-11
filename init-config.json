@@ -1,14 +1,39 @@
 {
-  "repos": [
-    {
-      "repoName": "anthropics_skills",
-      "repoUrl": "https://github.com/anthropics/skills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
-    },
-    {
-      "repoName": "staruhub_ClaudeSkills",
-      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
-    }
-  ]
+  "repos" : [ {
+    "repoUrl" : "git@github.com:MiniMax-AI/skills.git",
+    "repoName" : "MiniMax-AI_skills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\MiniMax-AI"
+  }, {
+    "repoUrl" : "git@github.com:mattpocock/skills.git",
+    "repoName" : "mattpocock_skills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\mattpocock"
+  }, {
+    "repoUrl" : "git@github.com:vercel-labs/skills.git",
+    "repoName" : "vercel-labs_skills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\vercel-labs"
+  }, {
+    "repoUrl" : "git@github.com:obra/superpowers.git",
+    "repoName" : "obra_superpowers",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\obra"
+  }, {
+    "repoUrl" : "git@github.com:anthropics/skills.git",
+    "repoName" : "anthropics_skills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\anthropics"
+  }, {
+    "repoUrl" : "git@github.com:coreyhaines31/marketingskills.git",
+    "repoName" : "coreyhaines31_marketingskills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\coreyhaines31"
+  }, {
+    "repoUrl" : "git@github.com:YuJunZhiXue/github-skill-forge.git",
+    "repoName" : "YuJunZhiXue_github-skill-forge",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\YuJunZhiXue"
+  }, {
+    "repoUrl" : "git@github.com:staruhub/ClaudeSkills.git",
+    "repoName" : "staruhub_ClaudeSkills",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\staruhub"
+  }, {
+    "repoUrl" : "git@github.com:wshobson/agents.git",
+    "repoName" : "wshobson_agents",
+    "localPath" : "E:\\develop\\code\\open-source\\github\\skills2\\wshobson"
+  } ]
 }

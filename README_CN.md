@@ -46,10 +46,10 @@ skill-manager/
 编辑 `skills.csv` 添加你的技能：
 
 ```csv
-repoPath,skillName,description
-E:\path\to\repo1,skill-name-1,技能描述 1
-E:\path\to\repo1,skill-name-2,技能描述 2
-E:\path\to\repo2,skill-name-3,技能描述 3
+repoPath,repoName,localPath,repoUrl,skillName,description
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-1,技能描述 1
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-2,技能描述 2
+E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staruhub/ClaudeSkills.git,skill-name-3,技能描述 3
 ```
 
 ### 2. 转换 CSV 为 JSON
@@ -192,6 +192,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 | 列名 | 说明 |
 |------|------|
 | repoPath | 包含技能的 Git 仓库路径 |
+| repoName | 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"） |
 | skillName | 要同步的技能目录名称 |
 | description | 技能的简要描述 |
 
@@ -204,11 +205,15 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
         {
             "repoName": "anthropics_skills",
             "repoPath": "E:\path\to\repo1",
+            "localPath": "E:\path\to\repo1",
+            "repoUrl": "https://github.com/anthropics/skills.git",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
             "repoName": "staruhub_ClaudeSkills",
             "repoPath": "E:\path\to\repo2",
+            "localPath": "E:\path\to\repo2",
+            "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
             "skillNames": ["skill-name-3"]
         }
     ]
@@ -218,6 +223,8 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 **字段说明：**
 - `repoName`: 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"）
 - `repoPath`: 仓库的本地路径
+- `localPath`: Git 仓库的本地路径（与 repoPath 相同）
+- `repoUrl`: GitHub 仓库 URL
 - `skillNames`: 要同步的技能名称列表
 
 ### batch-config.json
@@ -311,6 +318,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
    - 按 `repoPath` 合并技能（一对多关系）
    - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
 2. **sync-skills.ps1**：
    - 读取 `sync-config.json`
@@ -322,6 +330,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
    - 按 `repoPath` 合并技能（一对多关系）
    - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
 2. **sync-skills.py**：
    - 读取 `sync-config.json`
@@ -333,6 +342,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
    - 按 `repoPath` 合并技能（一对多关系）
    - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
 2. **SyncSkills.java**：
    - 读取 `sync-config.json`

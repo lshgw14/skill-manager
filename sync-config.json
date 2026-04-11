@@ -1,40 +1,96 @@
-[ {
-  "repos" : [ {
-    "repoName" : "anthropics_skills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
-    "skillNames" : [ "algorithmic-art", "brand-guidelines", "canvas-design", "docx", "pdf", "pptx", "xlsx", "doc-coauthoring", "frontend-design", "internal-comms", "mcp-builder", "skills-creator", "slack-gif-creator", "theme-factory", "webapp-testing", "web-artifacts-builder" ]
-  }, {
-    "repoName" : "obra_superpowers",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
-    "skillNames" : [ "brainstorming", "writing-plans" ]
-  }, {
-    "repoName" : "staruhub_ClaudeSkills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
-    "skillNames" : [ "request-analyzer" ]
-  }, {
-    "repoName" : "mattpocock_skills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\mattpocock\\skills",
-    "skillNames" : [ "write-a-prd" ]
-  }, {
-    "repoName" : "coreyhaines31_marketingskills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\coreyhaines31\\marketingskills\\skills",
-    "skillNames" : [ "ab-test-setup", "analytics-tracking", "onboarding-cro" ]
-  }, {
-    "repoName" : "wshobson_ui-design",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\wshobson\\agents\\plugins\\ui-design\\skills",
-    "skillNames" : [ "interaction-design" ]
-  }, {
-    "repoName" : "MiniMax-AI_skills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\MiniMax-AI\\skills\\skills",
-    "skillNames" : [ "frontend-dev", "fullstack-dev", "android-native-dev", "ios-application-dev", "flutter-dev", "react-native-dev", "shader-dev", "minimax-pdf", "pptx-generator", "minimax-xlsx", "minimax-docx" ]
-  }, {
-    "repoName" : "vercel-labs_skills",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\vercel-labs\\skills\\skills",
-    "skillNames" : [ "find-skills" ]
-  }, {
-    "repoName" : "YuJunZhiXue_github-skill-forge",
-    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills\\YuJunZhiXue\\github-skill-forge",
-    "skillNames" : [ "github-skill-forge" ]
-  } ],
-  "targetPath" : "C:\\Users\\admin\\.trae-cn\\skills\\"
-} ]
+{
+  "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+  "repos": [
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\mattpocock\\skills",
+      "skillNames": [
+        "write-a-prd"
+      ],
+      "repoName": "mattpocock_skills"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\staruhub\\ClaudeSkills\\skills",
+      "skillNames": [
+        "request-analyzer"
+      ],
+      "repoName": "staruhub_ClaudeSkills"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\obra\\superpowers\\skills",
+      "skillNames": [
+        "brainstorming",
+        "writing-plans"
+      ],
+      "repoName": "obra_superpowers"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\coreyhaines31\\marketingskills\\skills",
+      "skillNames": [
+        "ab-test-setup",
+        "analytics-tracking",
+        "onboarding-cro"
+      ],
+      "repoName": "coreyhaines31_marketingskills"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\wshobson\\agents\\plugins\\ui-design\\skills",
+      "skillNames": [
+        "interaction-design"
+      ],
+      "repoName": "wshobson_agents"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\vercel-labs\\skills\\skills",
+      "skillNames": [
+        "find-skills"
+      ],
+      "repoName": "vercel-labs_skills"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\YuJunZhiXue\\github-skill-forge",
+      "skillNames": [
+        "github-skill-forge"
+      ],
+      "repoName": "YuJunZhiXue_github-skill-forge"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\anthropics\\skills\\skills",
+      "skillNames": [
+        "algorithmic-art",
+        "brand-guidelines",
+        "canvas-design",
+        "docx",
+        "pdf",
+        "pptx",
+        "xlsx",
+        "doc-coauthoring",
+        "frontend-design",
+        "internal-comms",
+        "mcp-builder",
+        "skills-creator",
+        "slack-gif-creator",
+        "theme-factory",
+        "webapp-testing",
+        "web-artifacts-builder"
+      ],
+      "repoName": "anthropics_skills"
+    },
+    {
+      "repoPath": "E:\\develop\\code\\open-source\\github\\skills2\\MiniMax-AI\\skills\\skills",
+      "skillNames": [
+        "frontend-dev",
+        "fullstack-dev",
+        "android-native-dev",
+        "ios-application-dev",
+        "flutter-dev",
+        "react-native-dev",
+        "shader-dev",
+        "minimax-pdf",
+        "pptx-generator",
+        "minimax-xlsx",
+        "minimax-docx"
+      ],
+      "repoName": "MiniMax-AI_skills"
+    }
+  ]
+}

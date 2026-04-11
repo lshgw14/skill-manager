@@ -176,6 +176,10 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
 ```
 
+### 4. Initialize Skill Repositories
+
+#### Java Version (cross-platform):
+
 **Initialize a skill repository (HTTPS):**
 
 ```bash
@@ -223,20 +227,16 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 
 ```json
 {
-    "targetPath": "C:\Users\admin\.trae-cn\skills\",
+    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
     "repos": [
         {
             "repoName": "anthropics_skills",
-            "repoPath": "E:\path\to\repo1",
-            "localPath": "E:\path\to\repo1",
-            "repoUrl": "https://github.com/anthropics/skills.git",
+            "repoPath": "E:\\path\\to\\repo1",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
             "repoName": "staruhub_ClaudeSkills",
-            "repoPath": "E:\path\to\repo2",
-            "localPath": "E:\path\to\repo2",
-            "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+            "repoPath": "E:\\path\\to\\repo2",
             "skillNames": ["skill-name-3"]
         }
     ]
@@ -321,7 +321,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     {
       "repoName": "staruhub_ClaudeSkills",
       "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
-      "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
     }
   ]
 }
@@ -395,7 +395,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 - Git (for `git pull`)
 
 ### Java Version (cross-platform):
-- Java 8+
+- Java 21+
 - Maven 3.6+
 - Git (for `git pull`)
 - SSH support: Uses Apache MINA SSHD for SSH connections

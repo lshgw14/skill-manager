@@ -1,0 +1,40 @@
+{
+  "repos" : [ {
+    "repoName" : "MiniMax-AI_skills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\MiniMax-AI\\skills\\skills",
+    "skillNames" : [ "frontend-dev", "fullstack-dev", "android-native-dev", "ios-application-dev", "flutter-dev", "react-native-dev", "shader-dev", "minimax-pdf", "pptx-generator", "minimax-xlsx", "minimax-docx" ]
+  }, {
+    "repoName" : "mattpocock_skills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\mattpocock\\skills",
+    "skillNames" : [ "write-a-prd" ]
+  }, {
+    "repoName" : "vercel-labs_skills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\vercel-labs\\skills\\skills",
+    "skillNames" : [ "find-skills" ]
+  }, {
+    "repoName" : "obra_superpowers",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\obra\\superpowers\\skills",
+    "skillNames" : [ "brainstorming", "writing-plans" ]
+  }, {
+    "repoName" : "anthropics_skills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\anthropics\\skills\\skills",
+    "skillNames" : [ "algorithmic-art", "brand-guidelines", "canvas-design", "docx", "pdf", "pptx", "xlsx", "doc-coauthoring", "frontend-design", "internal-comms", "mcp-builder", "skills-creator", "slack-gif-creator", "theme-factory", "webapp-testing", "web-artifacts-builder" ]
+  }, {
+    "repoName" : "coreyhaines31_marketingskills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\coreyhaines31\\marketingskills\\skills",
+    "skillNames" : [ "ab-test-setup", "analytics-tracking", "onboarding-cro" ]
+  }, {
+    "repoName" : "YuJunZhiXue_github-skill-forge",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\YuJunZhiXue\\github-skill-forge",
+    "skillNames" : [ "github-skill-forge" ]
+  }, {
+    "repoName" : "staruhub_ClaudeSkills",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\staruhub\\ClaudeSkills\\skills",
+    "skillNames" : [ "request-analyzer" ]
+  }, {
+    "repoName" : "wshobson_agents",
+    "repoPath" : "E:\\develop\\code\\open-source\\github\\skills2\\wshobson\\agents\\plugins\\ui-design\\skills",
+    "skillNames" : [ "interaction-design" ]
+  } ],
+  "targetPath" : "C:\\Users\\admin\\.trae-cn\\skills\\"
+}

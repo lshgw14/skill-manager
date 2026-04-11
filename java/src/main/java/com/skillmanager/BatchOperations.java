@@ -1,14 +1,17 @@
 package com.skillmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
+import com.google.common.base.Preconditions;
 import java.io.*;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class BatchOperations {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) {
         // 解析命令行参数
@@ -37,6 +40,7 @@ public class BatchOperations {
             config = objectMapper.readValue(reader, Map.class);
         } catch (Exception e) {
             writeLog(String.format("ERROR: Failed to parse config file: %s", e.getMessage()));
+            e.printStackTrace();
             System.exit(1);
         }
 
@@ -59,7 +63,7 @@ public class BatchOperations {
             writeLog(String.format("=========================================="));
 
             String operationType = (String) operation.get("type");
-            if (operationType == null) {
+            if (Strings.isNullOrEmpty(operationType)) {
                 writeLog("ERROR: Operation type not specified");
                 failCount++;
                 continue;
@@ -111,7 +115,7 @@ public class BatchOperations {
         for (Map<String, Object> repo : repos) {
             repoCount++;
             String repoName = (String) repo.get("repoName");
-            if (repoName == null) {
+            if (Strings.isNullOrEmpty(repoName)) {
                 repoName = "Unknown";
             }
             writeLog(String.format("\nInitializing repo %d of %d: %s", repoCount, repos.size(), repoName));
@@ -119,13 +123,13 @@ public class BatchOperations {
             String repoUrl = (String) repo.get("repoUrl");
             String localPath = (String) repo.get("localPath");
 
-            if (repoUrl == null) {
+            if (Strings.isNullOrEmpty(repoUrl)) {
                 writeLog("ERROR: repoUrl not specified");
                 failCount++;
                 continue;
             }
 
-            if (localPath == null) {
+            if (Strings.isNullOrEmpty(localPath)) {
                 writeLog("ERROR: localPath not specified");
                 failCount++;
                 continue;
@@ -164,6 +168,7 @@ public class BatchOperations {
                 }
             } catch (Exception e) {
                 writeLog(String.format("ERROR: Init error: %s", e.getMessage()));
+                e.printStackTrace();
                 failCount++;
             }
         }
@@ -178,7 +183,7 @@ public class BatchOperations {
         String targetPath = (String) operation.get("targetPath");
         List<Map<String, Object>> repos = (List<Map<String, Object>>) operation.get("repos");
 
-        if (targetPath == null) {
+        if (Strings.isNullOrEmpty(targetPath)) {
             writeLog("ERROR: targetPath not specified for sync operation");
             return false;
         }
@@ -201,7 +206,7 @@ public class BatchOperations {
         for (Map<String, Object> repo : repos) {
             repoIndex++;
             String repoName = (String) repo.get("repoName");
-            if (repoName == null) {
+            if (Strings.isNullOrEmpty(repoName)) {
                 repoName = "Unknown";
             }
             String repoPath = (String) repo.get("repoPath");
@@ -217,6 +222,7 @@ public class BatchOperations {
             objectMapper.writeValue(writer, syncConfig);
         } catch (Exception e) {
             writeLog(String.format("ERROR: Failed to create temp config file: %s", e.getMessage()));
+            e.printStackTrace();
             return false;
         }
 
@@ -247,6 +253,7 @@ public class BatchOperations {
                     Files.deleteIfExists(tempConfigPath);
                 } catch (Exception e) {
                     writeLog(String.format("WARNING: Failed to delete temp config file: %s", e.getMessage()));
+                    e.printStackTrace();
                 }
                 return true;
             } else {
@@ -256,23 +263,26 @@ public class BatchOperations {
                     Files.deleteIfExists(tempConfigPath);
                 } catch (Exception e) {
                     writeLog(String.format("WARNING: Failed to delete temp config file: %s", e.getMessage()));
+                    e.printStackTrace();
                 }
                 return false;
             }
         } catch (Exception e) {
             writeLog(String.format("ERROR: Sync error: %s", e.getMessage()));
+            e.printStackTrace();
             // 删除临时配置文件
             try {
                 Files.deleteIfExists(tempConfigPath);
             } catch (Exception ex) {
                 writeLog(String.format("WARNING: Failed to delete temp config file: %s", ex.getMessage()));
+                ex.printStackTrace();
             }
             return false;
         }
     }
 
     private static void writeLog(String message) {
-        String timestamp = DATE_FORMAT.format(new Date());
+        String timestamp = LocalDateTime.now().format(DATE_FORMAT);
         System.out.printf("[%s] %s%n", timestamp, message);
     }
 }

@@ -1,16 +1,23 @@
 package com.skillmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+
 import java.io.*;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class SyncSkills {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) {
         // 解析命令行参数
@@ -34,7 +41,7 @@ public class SyncSkills {
         writeLog("Starting skill sync...");
 
         // 如果指定了配置文件，从配置文件读取同步任务
-        if (configFile != null) {
+        if (!Strings.isNullOrEmpty(configFile)) {
             // 检查配置文件是否存在
             Path configPath = Paths.get(configFile);
             if (!Files.exists(configPath)) {
@@ -45,7 +52,7 @@ public class SyncSkills {
             writeLog(String.format("Reading config file: %s", configFile));
 
             // 读取和解析 JSON 配置文件
-            List<Map<String, Object>> configs = new ArrayList<>();
+            List<Map<String, Object>> configs = Lists.newArrayList();
             ObjectMapper objectMapper = new ObjectMapper();
             
             try (BufferedReader reader = Files.newBufferedReader(configPath)) {
@@ -53,6 +60,7 @@ public class SyncSkills {
                 configs = objectMapper.readValue(reader, List.class);
             } catch (Exception e) {
                 writeLog(String.format("ERROR: Invalid JSON config file: %s", e.getMessage()));
+                e.printStackTrace();
                 System.exit(1);
             }
 
@@ -64,12 +72,13 @@ public class SyncSkills {
             List<Map<String, Object>> configList;
             if (configs.isEmpty()) {
                 // 处理单个对象的情况
-                configList = new ArrayList<>();
+                configList = Lists.newArrayList();
                 try {
                     Map<String, Object> singleConfig = objectMapper.readValue(Files.readString(configPath), Map.class);
                     configList.add(singleConfig);
                 } catch (IOException e) {
                     writeLog(String.format("ERROR: Failed to read config file: %s", e.getMessage()));
+                    e.printStackTrace();
                     System.exit(1);
                 }
             } else {
@@ -78,7 +87,7 @@ public class SyncSkills {
 
             for (Map<String, Object> targetGroup : configList) {
                 String groupTargetPath = (String) targetGroup.get("targetPath");
-                if (groupTargetPath == null) {
+                if (Strings.isNullOrEmpty(groupTargetPath)) {
                     continue;
                 }
 
@@ -89,13 +98,13 @@ public class SyncSkills {
 
                 for (Map<String, Object> repo : repos) {
                     String repoName = (String) repo.get("repoName");
-                        if (repoName == null) {
+                        if (Strings.isNullOrEmpty(repoName)) {
                             repoName = "Unknown";
                         }
                         String repoPathFromConfig = (String) repo.get("repoPath");
                         Object skillNamesObj = repo.get("skillNames");
 
-                        if (repoPathFromConfig == null || skillNamesObj == null) {
+                        if (Strings.isNullOrEmpty(repoPathFromConfig) || skillNamesObj == null) {
                             continue;
                         }
 
@@ -103,7 +112,7 @@ public class SyncSkills {
                     if (skillNamesObj instanceof String) {
                         skillNames = Collections.singletonList((String) skillNamesObj);
                     } else if (skillNamesObj instanceof List) {
-                        skillNames = new ArrayList<>();
+                        skillNames = Lists.newArrayList();
                         for (Object obj : (List<?>) skillNamesObj) {
                             if (obj instanceof String) {
                                 skillNames.add((String) obj);
@@ -137,11 +146,14 @@ public class SyncSkills {
     }
 
     private static void writeLog(String message) {
-        String timestamp = DATE_FORMAT.format(new Date());
+        String timestamp = LocalDateTime.now().format(DATE_FORMAT);
         System.out.printf("[%s] %s%n", timestamp, message);
     }
 
     private static void writeDirectoryTree(String path, String title) {
+        Preconditions.checkNotNull(path, "path cannot be null");
+        Preconditions.checkNotNull(title, "title cannot be null");
+        
         writeLog(String.format("========== %s ==========", title));
 
         Path dirPath = Paths.get(path);
@@ -154,7 +166,7 @@ public class SyncSkills {
         writeLog(String.format("Directory path: %s", path));
         writeLog("Directory contents:");
 
-        List<Path> items = new ArrayList<>();
+        List<Path> items = Lists.newArrayList();
         try {
             Files.walk(dirPath)
                  .filter(Files::isRegularFile)
@@ -164,6 +176,7 @@ public class SyncSkills {
                  .forEach(items::add);
         } catch (IOException e) {
             writeLog(String.format("ERROR: Failed to walk directory: %s", e.getMessage()));
+            e.printStackTrace();
             writeLog("==========================================");
             return;
         }
@@ -197,6 +210,9 @@ public class SyncSkills {
     }
 
     private static boolean syncSkill(String skillName, String repoPath, String targetPath) {
+        Preconditions.checkNotNull(repoPath, "repoPath cannot be null");
+        Preconditions.checkNotNull(targetPath, "targetPath cannot be null");
+        
         // 检查源仓库路径是否存在
         Path repoPathObj = Paths.get(repoPath);
         if (!Files.exists(repoPathObj)) {
@@ -206,15 +222,14 @@ public class SyncSkills {
 
         // 更新源仓库（git pull）
         writeLog(String.format("Updating source repo: %s", repoPath));
-        try {
-            try (Git git = Git.open(repoPathObj.toFile())) {
-                git.pull().call();
-            }
+        try (Git git = Git.open(repoPathObj.toFile())) {
+            git.pull().call();
         } catch (GitAPIException e) {
             writeLog("WARNING: git pull failed, continuing with existing code...");
             writeLog(String.format("Git error: %s", e.getMessage()));
         } catch (Exception e) {
             writeLog(String.format("WARNING: git pull error: %s", e.getMessage()));
+            e.printStackTrace();
         }
 
         // 检查并创建目标目录
@@ -225,12 +240,13 @@ public class SyncSkills {
                 Files.createDirectories(targetPathObj);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to create target directory: %s", e.getMessage()));
+                e.printStackTrace();
                 return false;
             }
         }
 
         // 同步单个技能
-        if (skillName != null && !skillName.trim().isEmpty()) {
+        if (!Strings.isNullOrEmpty(skillName)) {
             Path sourceSkillPath = repoPathObj.resolve(skillName);
 
             // 检查指定的技能是否存在
@@ -275,10 +291,12 @@ public class SyncSkills {
                              }
                          } catch (IOException e) {
                              writeLog(String.format("ERROR: Failed to copy file: %s", e.getMessage()));
+                             e.printStackTrace();
                          }
                      });
             } catch (Exception e) {
                 writeLog(String.format("ERROR: Copy failed: %s", e.getMessage()));
+                e.printStackTrace();
                 return false;
             }
 
@@ -293,13 +311,14 @@ public class SyncSkills {
             writeLog("Syncing all skills...");
 
             // 从源仓库获取所有技能目录
-            List<String> skills = new ArrayList<>();
+            List<String> skills = Lists.newArrayList();
             try {
                 Files.list(repoPathObj)
                      .filter(Files::isDirectory)
                      .forEach(dir -> skills.add(dir.getFileName().toString()));
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to list skills: %s", e.getMessage()));
+                e.printStackTrace();
                 return false;
             }
 
@@ -343,10 +362,12 @@ public class SyncSkills {
                                  }
                              } catch (IOException e) {
                                  writeLog(String.format("ERROR: Failed to copy file: %s", e.getMessage()));
+                                 e.printStackTrace();
                              }
                          });
                 } catch (Exception e) {
                     writeLog(String.format("ERROR: Copy failed: %s", e.getMessage()));
+                    e.printStackTrace();
                     continue;
                 }
 

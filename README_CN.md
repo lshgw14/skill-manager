@@ -12,6 +12,7 @@
 - **编码自动检测**：自动将 CSV 文件转换为 UTF-8 编码
 - **详细日志**：完整的日志记录，包含目录树验证
 - **批量操作**：通过配置文件顺序执行多个操作（初始化和同步）
+- **SSH 支持**：使用 SSH URL 克隆仓库（Java 版本）
 
 ## 文件结构
 
@@ -57,13 +58,13 @@ E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staru
 #### PowerShell 版本（仅 Windows）：
 
 ```powershell
-.\powershell\csv-to-json.ps1
+.owershellsv-to-json.ps1
 ```
 
 或使用自定义参数：
 
 ```powershell
-.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+.owershellsv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 #### Python 版本（跨平台）：
@@ -94,13 +95,13 @@ chmod +x java/build.sh
 然后运行 CSV 转 JSON 工具：
 
 ```bash
-java -jar java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson
 ```
 
 或使用自定义参数：
 
 ```bash
-java -jar java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 ### 3. 同步技能
@@ -164,25 +165,47 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 同步单个技能：
 
 ```bash
-java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\" 
 ```
 
 同步仓库中的所有技能：
 
 ```bash
-java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\" 
 ```
 
-**初始化技能仓库：**
+### 4. 初始化技能仓库
+
+#### Java 版本（跨平台）：
+
+**初始化技能仓库（HTTPS）：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "https://github.com/anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
+```
+
+**初始化技能仓库（SSH）：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "git@github.com:anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
 ```
 
 **从配置文件初始化多个仓库：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -ConfigFile "init-config.json"
+```
+
+**执行批量操作：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations
+```
+
+或使用自定义配置文件：
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations -ConfigFile "batch-config.json"
 ```
 
 ## 配置文件说明
@@ -193,6 +216,8 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 |------|------|
 | repoPath | 包含技能的 Git 仓库路径 |
 | repoName | 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"） |
+| localPath | Git 仓库的本地路径（用于 init-config.json） |
+| repoUrl | GitHub 仓库 URL（例如，"https://github.com/anthropics/skills.git"） |
 | skillName | 要同步的技能目录名称 |
 | description | 技能的简要描述 |
 
@@ -200,20 +225,16 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 
 ```json
 {
-    "targetPath": "C:\Users\admin\.trae-cn\skills\",
+    "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
     "repos": [
         {
             "repoName": "anthropics_skills",
-            "repoPath": "E:\path\to\repo1",
-            "localPath": "E:\path\to\repo1",
-            "repoUrl": "https://github.com/anthropics/skills.git",
+            "repoPath": "E:\\path\\to\\repo1",
             "skillNames": ["skill-name-1", "skill-name-2"]
         },
         {
             "repoName": "staruhub_ClaudeSkills",
-            "repoPath": "E:\path\to\repo2",
-            "localPath": "E:\path\to\repo2",
-            "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
+            "repoPath": "E:\\path\\to\\repo2",
             "skillNames": ["skill-name-3"]
         }
     ]
@@ -223,8 +244,6 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 **字段说明：**
 - `repoName`: 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"）
 - `repoPath`: 仓库的本地路径
-- `localPath`: Git 仓库的本地路径（与 repoPath 相同）
-- `repoUrl`: GitHub 仓库 URL
 - `skillNames`: 要同步的技能名称列表
 
 ### batch-config.json
@@ -238,37 +257,37 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
         {
           "repoName": "anthropics_skills",
           "repoUrl": "https://github.com/anthropics/skills.git",
-          "localPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
         },
         {
           "repoName": "staruhub_ClaudeSkills",
           "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-          "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
         },
         {
           "repoName": "obra_superpowers",
           "repoUrl": "https://github.com/obra/superpowers.git",
-          "localPath": "E:\develop\code\open-source\github\skills\obra\superpowers\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills"
         }
       ]
     },
     {
       "type": "sync",
-      "targetPath": "C:\Users\admin\.trae-cn\skills\",
+      "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
       "repos": [
         {
           "repoName": "anthropics_skills",
-          "repoPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills",
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills",
           "skillNames": ["algorithmic-art", "brand-guidelines"]
         },
         {
           "repoName": "staruhub_ClaudeSkills",
-          "repoPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills",
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills",
           "skillNames": ["request-analyzer"]
         },
         {
           "repoName": "obra_superpowers",
-          "repoPath": "E:\develop\code\open-source\github\skills\obra\superpowers\skills",
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills",
           "skillNames": ["brainstorming", "writing-plans"]
         }
       ]
@@ -295,12 +314,12 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     {
       "repoName": "anthropics_skills",
       "repoUrl": "https://github.com/anthropics/skills.git",
-      "localPath": "E:\develop\code\open-source\github\skills\anthropics\skills\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
     },
     {
       "repoName": "staruhub_ClaudeSkills",
-      "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-      "localPath": "E:\develop\code\open-source\github\skills\staruhub\ClaudeSkills\skills"
+      "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
     }
   ]
 }
@@ -353,6 +372,7 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 克隆远程 Git 仓库到本地路径
    - 支持命令行参数指定仓库 URL 和本地路径
    - 提供详细的克隆过程日志
+   - 支持 HTTPS 和 SSH URL 克隆
 
 4. **BatchOperations.java**：
    - 读取 `batch-config.json` 配置文件
@@ -373,9 +393,10 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 - Git（用于 `git pull`）
 
 ### Java 版本（跨平台）：
-- Java 8+
+- Java 21+
 - Maven 3.6+
 - Git（用于 `git pull`）
+- SSH支持：使用 Apache MINA SSHD 进行 SSH 连接
 
 ## 注意事项
 

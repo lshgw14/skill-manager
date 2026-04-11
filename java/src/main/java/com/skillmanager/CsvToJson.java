@@ -2,18 +2,25 @@ package com.skillmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.base.Strings;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.base.Splitter;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CsvToJson {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final Splitter CSV_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
     public static void main(String[] args) {
         // 解析命令行参数
@@ -53,7 +60,7 @@ public class CsvToJson {
         List<Map<String, String>> csvData = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(csvPath, StandardCharsets.UTF_8)) {
             String headerLine = reader.readLine();
-            if (headerLine == null) {
+            if (Strings.isNullOrEmpty(headerLine)) {
                 writeLog("WARNING: CSV file is empty");
                 System.exit(0);
             }
@@ -63,18 +70,19 @@ public class CsvToJson {
                 headerLine = headerLine.substring(1);
             }
 
-            String[] headers = headerLine.split(",");
+            List<String> headers = Lists.newArrayList(CSV_SPLITTER.split(headerLine));
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
-                Map<String, String> row = new HashMap<>();
-                for (int i = 0; i < Math.min(headers.length, values.length); i++) {
-                    row.put(headers[i].trim(), values[i].trim());
+                List<String> values = Lists.newArrayList(CSV_SPLITTER.split(line));
+                Map<String, String> row = Maps.newHashMap();
+                for (int i = 0; i < Math.min(headers.size(), values.size()); i++) {
+                    row.put(headers.get(i), values.get(i));
                 }
                 csvData.add(row);
             }
         } catch (IOException e) {
             writeLog(String.format("ERROR: Failed to read CSV file: %s", e.getMessage()));
+            e.printStackTrace();
             System.exit(1);
         }
 
@@ -94,28 +102,28 @@ public class CsvToJson {
             writeLog("Processing in init mode: generating init-config.json");
             
             // 从 CSV 数据中提取唯一的仓库信息
-            Map<String, Map<String, String>> repoMap = new HashMap<>();
+            Map<String, Map<String, String>> repoMap = Maps.newHashMap();
             for (Map<String, String> row : csvData) {
                 String repoPath = row.get("repoPath");
                 String repoName = row.get("repoName");
                 String localPath = row.get("localPath");
                 String repoUrl = row.get("repoUrl");
                 
-                if (repoPath == null || repoPath.trim().isEmpty()) {
+                if (Strings.isNullOrEmpty(repoPath)) {
                     writeLog("Skipping empty repoPath");
                     continue;
                 }
                 
                 repoPath = repoPath.trim();
                 if (!repoMap.containsKey(repoPath)) {
-                    Map<String, String> repoInfo = new HashMap<>();
-                    if (repoName != null && !repoName.trim().isEmpty()) {
+                    Map<String, String> repoInfo = Maps.newHashMap();
+                    if (!Strings.isNullOrEmpty(repoName)) {
                         repoInfo.put("repoName", repoName.trim());
                     }
-                    if (localPath != null && !localPath.trim().isEmpty()) {
+                    if (!Strings.isNullOrEmpty(localPath)) {
                         repoInfo.put("localPath", localPath.trim());
                     }
-                    if (repoUrl != null && !repoUrl.trim().isEmpty()) {
+                    if (!Strings.isNullOrEmpty(repoUrl)) {
                         repoInfo.put("repoUrl", repoUrl.trim());
                     }
                     repoMap.put(repoPath, repoInfo);
@@ -123,8 +131,8 @@ public class CsvToJson {
             }
             
             // 生成 init-config.json 格式
-            Map<String, Object> initConfig = new HashMap<>();
-            List<Map<String, Object>> repos = new ArrayList<>();
+            Map<String, Object> initConfig = Maps.newHashMap();
+            List<Map<String, Object>> repos = Lists.newArrayList();
             
             for (Map.Entry<String, Map<String, String>> entry : repoMap.entrySet()) {
                 String repoPath = entry.getKey();
@@ -133,18 +141,18 @@ public class CsvToJson {
                 String repoUrl = repoInfo.get("repoUrl");
                 
                 // 如果 CSV 中没有提供 repoUrl，则从 repoPath 生成
-                if (repoUrl == null || repoUrl.trim().isEmpty()) {
+                if (Strings.isNullOrEmpty(repoUrl)) {
                     // 从 repoPath 提取 GitHub 仓库信息
-                    String[] parts = repoPath.split("\\\\");
+                    List<String> parts = Lists.newArrayList(Splitter.on("\\\\").split(repoPath));
                     repoUrl = "";
-                    if (parts.length >= 2) {
-                        String owner = parts.length >= 3 ? parts[parts.length - 3] : "";
-                        String repo = parts[parts.length - 2];
+                    if (parts.size() >= 2) {
+                        String owner = parts.size() >= 3 ? parts.get(parts.size() - 3) : "";
+                        String repo = parts.get(parts.size() - 2);
                         repoUrl = String.format("https://github.com/%s/%s.git", owner, repo);
                     }
                 }
                 
-                Map<String, Object> repoConfig = new HashMap<>();
+                Map<String, Object> repoConfig = Maps.newHashMap();
                 repoConfig.put("repoName", repoInfo.get("repoName"));
                 repoConfig.put("repoUrl", repoUrl);
                 repoConfig.put("localPath", repoInfo.get("localPath"));
@@ -158,6 +166,7 @@ public class CsvToJson {
                 objectMapper.writeValue(writer, initConfig);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to save JSON file: %s", e.getMessage()));
+                e.printStackTrace();
                 System.exit(1);
             }
             writeLog(String.format("Init config saved to: %s", jsonFile));
@@ -166,13 +175,14 @@ public class CsvToJson {
                 objectMapper.writeValue(System.out, initConfig);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to write JSON to console: %s", e.getMessage()));
+                e.printStackTrace();
             }
         } else {
             // 处理 sync 模式：生成 sync-config.json
             writeLog("Processing in sync mode: generating sync-config.json");
             
             // 读取现有 JSON 文件
-            Map<String, Object> jsonConfig = new HashMap<>();
+            Map<String, Object> jsonConfig = Maps.newHashMap();
             
             if (Files.exists(jsonPath)) {
                 writeLog(String.format("Reading existing JSON file: %s", jsonFile));
@@ -181,7 +191,7 @@ public class CsvToJson {
                     jsonConfig = objectMapper.readValue(reader, Map.class);
                 } catch (Exception e) {
                     writeLog("WARNING: Invalid JSON file, creating new configuration");
-                    jsonConfig = new HashMap<>();
+                    jsonConfig = Maps.newHashMap();
                 }
             } else {
                 writeLog("JSON file does not exist, creating new configuration");
@@ -195,24 +205,24 @@ public class CsvToJson {
 
             if (targetGroup == null) {
                 writeLog(String.format("Creating new target group: %s", targetPath));
-                targetGroup = new HashMap<>();
+                targetGroup = Maps.newHashMap();
                 targetGroup.put("targetPath", targetPath);
-                targetGroup.put("repos", new ArrayList<>());
+                targetGroup.put("repos", Lists.newArrayList());
                 jsonConfig = targetGroup;
             }
 
             // 创建 repo map
-            Map<String, List<String>> repoMap = new HashMap<>();
-            Map<String, String> repoNameMap = new HashMap<>();
+            Map<String, List<String>> repoMap = Maps.newHashMap();
+            Map<String, String> repoNameMap = Maps.newHashMap();
             List<Map<String, Object>> repos = (List<Map<String, Object>>) targetGroup.get("repos");
             if (repos != null) {
                 for (Map<String, Object> repo : repos) {
                     String repoPath = (String) repo.get("repoPath");
                     List<String> skillNames = (List<String>) repo.get("skillNames");
                     String repoName = (String) repo.get("repoName");
-                    if (repoPath != null && skillNames != null) {
+                    if (!Strings.isNullOrEmpty(repoPath) && skillNames != null) {
                         repoMap.put(repoPath, new ArrayList<>(skillNames));
-                        if (repoName != null) {
+                        if (!Strings.isNullOrEmpty(repoName)) {
                             repoNameMap.put(repoPath, repoName);
                         }
                     }
@@ -227,7 +237,7 @@ public class CsvToJson {
                 String skillName = row.get("skillName");
                 String repoName = row.get("repoName");
 
-                if (repoPath == null || repoPath.trim().isEmpty() || skillName == null || skillName.trim().isEmpty()) {
+                if (Strings.isNullOrEmpty(repoPath) || Strings.isNullOrEmpty(skillName)) {
                     writeLog(String.format("Skipping empty row: repoPath=%s, skillName=%s", repoPath, skillName));
                     continue;
                 }
@@ -249,10 +259,10 @@ public class CsvToJson {
                     // Do not update repoName from CSV
                 } else {
                     writeLog(String.format("Creating new repo config: %s, adding skill: %s", repoPath, skillName));
-                    List<String> skillNames = new ArrayList<>();
+                    List<String> skillNames = Lists.newArrayList();
                     skillNames.add(skillName);
                     repoMap.put(repoPath, skillNames);
-                    if (repoName != null && !repoName.trim().isEmpty()) {
+                    if (!Strings.isNullOrEmpty(repoName)) {
                         repoNameMap.put(repoPath, repoName.trim());
                     }
                     modified = true;
@@ -260,9 +270,9 @@ public class CsvToJson {
             }
 
             // 更新 repos
-            List<Map<String, Object>> newRepos = new ArrayList<>();
+            List<Map<String, Object>> newRepos = Lists.newArrayList();
             for (Map.Entry<String, List<String>> entry : repoMap.entrySet()) {
-                Map<String, Object> repo = new HashMap<>();
+                Map<String, Object> repo = Maps.newHashMap();
                 repo.put("repoPath", entry.getKey());
                 repo.put("skillNames", entry.getValue());
                 if (repoNameMap.containsKey(entry.getKey())) {
@@ -279,6 +289,7 @@ public class CsvToJson {
                     objectMapper.writeValue(writer, jsonConfig);
                 } catch (IOException e) {
                     writeLog(String.format("ERROR: Failed to save JSON file: %s", e.getMessage()));
+                    e.printStackTrace();
                     System.exit(1);
                 }
                 writeLog(String.format("JSON config saved to: %s", jsonFile));
@@ -287,6 +298,7 @@ public class CsvToJson {
                     objectMapper.writeValue(System.out, jsonConfig);
                 } catch (IOException e) {
                     writeLog(String.format("ERROR: Failed to write JSON to console: %s", e.getMessage()));
+                    e.printStackTrace();
                 }
             } else {
                 writeLog("No updates needed");
@@ -297,7 +309,7 @@ public class CsvToJson {
     }
 
     private static void writeLog(String message) {
-        String timestamp = DATE_FORMAT.format(new Date());
+        String timestamp = LocalDateTime.now().format(DATE_FORMAT);
         System.out.printf("[%s] %s%n", timestamp, message);
     }
 
@@ -386,6 +398,7 @@ public class CsvToJson {
             return true;
         } catch (Exception e) {
             writeLog(String.format("ERROR: Failed to convert encoding: %s", e.getMessage()));
+            e.printStackTrace();
             return false;
         }
     }

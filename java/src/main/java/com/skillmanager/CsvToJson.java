@@ -20,6 +20,7 @@ public class CsvToJson {
         String csvFile = "skills.csv";
         String jsonFile = "sync-config.json";
         String targetPath = "C:\\Users\\admin\\.trae-cn\\skills\\";
+        String outputType = "sync"; // 默认值为 sync
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-CsvFile") && i + 1 < args.length) {
@@ -28,6 +29,8 @@ public class CsvToJson {
                 jsonFile = args[i + 1];
             } else if (args[i].equals("-TargetPath") && i + 1 < args.length) {
                 targetPath = args[i + 1];
+            } else if (args[i].equals("-OutputType") && i + 1 < args.length) {
+                outputType = args[i + 1];
             }
         }
 
@@ -55,6 +58,11 @@ public class CsvToJson {
                 System.exit(0);
             }
 
+            // 处理 UTF-8 BOM
+            if (headerLine.startsWith("\uFEFF")) {
+                headerLine = headerLine.substring(1);
+            }
+
             String[] headers = headerLine.split(",");
             String line;
             while ((line = reader.readLine()) != null) {
@@ -77,117 +85,212 @@ public class CsvToJson {
 
         writeLog(String.format("CSV file contains %d rows", csvData.size()));
 
-        // 读取现有 JSON 文件
-        List<Map<String, Object>> jsonConfig = new ArrayList<>();
         Path jsonPath = Paths.get(jsonFile);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
-        if (Files.exists(jsonPath)) {
-            writeLog(String.format("Reading existing JSON file: %s", jsonFile));
-            try (BufferedReader reader = Files.newBufferedReader(jsonPath, StandardCharsets.UTF_8)) {
-                // 使用 Jackson 解析 JSON
-                jsonConfig = objectMapper.readValue(reader, List.class);
-            } catch (Exception e) {
-                writeLog("WARNING: Invalid JSON file, creating new configuration");
-                jsonConfig = new ArrayList<>();
-            }
-        } else {
-            writeLog("JSON file does not exist, creating new configuration");
-        }
 
-        // 查找或创建目标组
-        Map<String, Object> targetGroup = null;
-        for (Map<String, Object> group : jsonConfig) {
-            if (targetPath.equals(group.get("targetPath"))) {
-                targetGroup = group;
-                break;
-            }
-        }
-
-        if (targetGroup == null) {
-            writeLog(String.format("Creating new target group: %s", targetPath));
-            targetGroup = new HashMap<>();
-            targetGroup.put("targetPath", targetPath);
-            targetGroup.put("repos", new ArrayList<>());
-            jsonConfig = new ArrayList<>();
-            jsonConfig.add(targetGroup);
-        }
-
-        // 创建 repo map
-        Map<String, List<String>> repoMap = new HashMap<>();
-        List<Map<String, Object>> repos = (List<Map<String, Object>>) targetGroup.get("repos");
-        if (repos != null) {
-            for (Map<String, Object> repo : repos) {
-                String repoPath = (String) repo.get("repoPath");
-                List<String> skillNames = (List<String>) repo.get("skillNames");
-                if (repoPath != null && skillNames != null) {
-                    repoMap.put(repoPath, new ArrayList<>(skillNames));
+        if ("init".equals(outputType)) {
+            // 处理 init 模式：生成 init-config.json
+            writeLog("Processing in init mode: generating init-config.json");
+            
+            // 从 CSV 数据中提取唯一的仓库信息
+            Map<String, Map<String, String>> repoMap = new HashMap<>();
+            for (Map<String, String> row : csvData) {
+                String repoPath = row.get("repoPath");
+                String repoName = row.get("repoName");
+                String localPath = row.get("localPath");
+                String repoUrl = row.get("repoUrl");
+                
+                if (repoPath == null || repoPath.trim().isEmpty()) {
+                    writeLog("Skipping empty repoPath");
+                    continue;
+                }
+                
+                repoPath = repoPath.trim();
+                if (!repoMap.containsKey(repoPath)) {
+                    Map<String, String> repoInfo = new HashMap<>();
+                    if (repoName != null && !repoName.trim().isEmpty()) {
+                        repoInfo.put("repoName", repoName.trim());
+                    }
+                    if (localPath != null && !localPath.trim().isEmpty()) {
+                        repoInfo.put("localPath", localPath.trim());
+                    }
+                    if (repoUrl != null && !repoUrl.trim().isEmpty()) {
+                        repoInfo.put("repoUrl", repoUrl.trim());
+                    }
+                    repoMap.put(repoPath, repoInfo);
                 }
             }
-        }
-
-        boolean modified = false;
-
-        // 处理 CSV 数据
-        for (Map<String, String> row : csvData) {
-            String repoPath = row.get("repoPath");
-            String skillName = row.get("skillName");
-
-            if (repoPath == null || repoPath.trim().isEmpty() || skillName == null || skillName.trim().isEmpty()) {
-                writeLog(String.format("Skipping empty row: repoPath=%s, skillName=%s", repoPath, skillName));
-                continue;
-            }
-
-            repoPath = repoPath.trim();
-            skillName = skillName.trim();
-
-            if (repoMap.containsKey(repoPath)) {
-                List<String> skillNames = repoMap.get(repoPath);
-                if (!skillNames.contains(skillName)) {
-                    writeLog(String.format("Adding skill '%s' to existing repo: %s", skillName, repoPath));
-                    skillNames.add(skillName);
-                    modified = true;
-                } else {
-                    writeLog(String.format("Skill '%s' already exists in repo: %s", skillName, repoPath));
+            
+            // 生成 init-config.json 格式
+            Map<String, Object> initConfig = new HashMap<>();
+            List<Map<String, Object>> repos = new ArrayList<>();
+            
+            for (Map.Entry<String, Map<String, String>> entry : repoMap.entrySet()) {
+                String repoPath = entry.getKey();
+                Map<String, String> repoInfo = entry.getValue();
+                
+                String repoUrl = repoInfo.get("repoUrl");
+                
+                // 如果 CSV 中没有提供 repoUrl，则从 repoPath 生成
+                if (repoUrl == null || repoUrl.trim().isEmpty()) {
+                    // 从 repoPath 提取 GitHub 仓库信息
+                    String[] parts = repoPath.split("\\\\");
+                    repoUrl = "";
+                    if (parts.length >= 2) {
+                        String owner = parts.length >= 3 ? parts[parts.length - 3] : "";
+                        String repo = parts[parts.length - 2];
+                        repoUrl = String.format("https://github.com/%s/%s.git", owner, repo);
+                    }
                 }
-            } else {
-                writeLog(String.format("Creating new repo config: %s, adding skill: %s", repoPath, skillName));
-                List<String> skillNames = new ArrayList<>();
-                skillNames.add(skillName);
-                repoMap.put(repoPath, skillNames);
-                modified = true;
+                
+                Map<String, Object> repoConfig = new HashMap<>();
+                repoConfig.put("repoName", repoInfo.get("repoName"));
+                repoConfig.put("repoUrl", repoUrl);
+                repoConfig.put("localPath", repoInfo.get("localPath"));
+                repos.add(repoConfig);
             }
-        }
-
-        // 更新 repos
-        List<Map<String, Object>> newRepos = new ArrayList<>();
-        for (Map.Entry<String, List<String>> entry : repoMap.entrySet()) {
-            Map<String, Object> repo = new HashMap<>();
-            repo.put("repoPath", entry.getKey());
-            repo.put("skillNames", entry.getValue());
-            newRepos.add(repo);
-        }
-
-        targetGroup.put("repos", newRepos);
-
-        // 保存 JSON
-        if (modified) {
+            
+            initConfig.put("repos", repos);
+            
+            // 保存到文件
             try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
-                objectMapper.writeValue(writer, jsonConfig);
+                objectMapper.writeValue(writer, initConfig);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to save JSON file: %s", e.getMessage()));
                 System.exit(1);
             }
-            writeLog(String.format("JSON config saved to: %s", jsonFile));
+            writeLog(String.format("Init config saved to: %s", jsonFile));
             writeLog("Config content:");
             try {
-                objectMapper.writeValue(System.out, jsonConfig);
+                objectMapper.writeValue(System.out, initConfig);
             } catch (IOException e) {
                 writeLog(String.format("ERROR: Failed to write JSON to console: %s", e.getMessage()));
             }
         } else {
-            writeLog("No updates needed");
+            // 处理 sync 模式：生成 sync-config.json
+            writeLog("Processing in sync mode: generating sync-config.json");
+            
+            // 读取现有 JSON 文件
+            Map<String, Object> jsonConfig = new HashMap<>();
+            
+            if (Files.exists(jsonPath)) {
+                writeLog(String.format("Reading existing JSON file: %s", jsonFile));
+                try (BufferedReader reader = Files.newBufferedReader(jsonPath, StandardCharsets.UTF_8)) {
+                    // 使用 Jackson 解析 JSON
+                    jsonConfig = objectMapper.readValue(reader, Map.class);
+                } catch (Exception e) {
+                    writeLog("WARNING: Invalid JSON file, creating new configuration");
+                    jsonConfig = new HashMap<>();
+                }
+            } else {
+                writeLog("JSON file does not exist, creating new configuration");
+            }
+
+            // 查找或创建目标组
+            Map<String, Object> targetGroup = null;
+            if (targetPath.equals(jsonConfig.get("targetPath"))) {
+                targetGroup = jsonConfig;
+            }
+
+            if (targetGroup == null) {
+                writeLog(String.format("Creating new target group: %s", targetPath));
+                targetGroup = new HashMap<>();
+                targetGroup.put("targetPath", targetPath);
+                targetGroup.put("repos", new ArrayList<>());
+                jsonConfig = targetGroup;
+            }
+
+            // 创建 repo map
+            Map<String, List<String>> repoMap = new HashMap<>();
+            Map<String, String> repoNameMap = new HashMap<>();
+            List<Map<String, Object>> repos = (List<Map<String, Object>>) targetGroup.get("repos");
+            if (repos != null) {
+                for (Map<String, Object> repo : repos) {
+                    String repoPath = (String) repo.get("repoPath");
+                    List<String> skillNames = (List<String>) repo.get("skillNames");
+                    String repoName = (String) repo.get("repoName");
+                    if (repoPath != null && skillNames != null) {
+                        repoMap.put(repoPath, new ArrayList<>(skillNames));
+                        if (repoName != null) {
+                            repoNameMap.put(repoPath, repoName);
+                        }
+                    }
+                }
+            }
+
+            boolean modified = false;
+
+            // 处理 CSV 数据
+            for (Map<String, String> row : csvData) {
+                String repoPath = row.get("repoPath");
+                String skillName = row.get("skillName");
+                String repoName = row.get("repoName");
+
+                if (repoPath == null || repoPath.trim().isEmpty() || skillName == null || skillName.trim().isEmpty()) {
+                    writeLog(String.format("Skipping empty row: repoPath=%s, skillName=%s", repoPath, skillName));
+                    continue;
+                }
+
+                repoPath = repoPath.trim();
+                skillName = skillName.trim();
+
+                if (repoMap.containsKey(repoPath)) {
+                    List<String> skillNames = repoMap.get(repoPath);
+                    if (!skillNames.contains(skillName)) {
+                        writeLog(String.format("Adding skill '%s' to existing repo: %s", skillName, repoPath));
+                        skillNames.add(skillName);
+                        modified = true;
+                    } else {
+                        writeLog(String.format("Skill '%s' already exists in repo: %s", skillName, repoPath));
+                    }
+                    
+                    // Keep repoName unchanged from existing config
+                    // Do not update repoName from CSV
+                } else {
+                    writeLog(String.format("Creating new repo config: %s, adding skill: %s", repoPath, skillName));
+                    List<String> skillNames = new ArrayList<>();
+                    skillNames.add(skillName);
+                    repoMap.put(repoPath, skillNames);
+                    if (repoName != null && !repoName.trim().isEmpty()) {
+                        repoNameMap.put(repoPath, repoName.trim());
+                    }
+                    modified = true;
+                }
+            }
+
+            // 更新 repos
+            List<Map<String, Object>> newRepos = new ArrayList<>();
+            for (Map.Entry<String, List<String>> entry : repoMap.entrySet()) {
+                Map<String, Object> repo = new HashMap<>();
+                repo.put("repoPath", entry.getKey());
+                repo.put("skillNames", entry.getValue());
+                if (repoNameMap.containsKey(entry.getKey())) {
+                    repo.put("repoName", repoNameMap.get(entry.getKey()));
+                }
+                newRepos.add(repo);
+            }
+
+            targetGroup.put("repos", newRepos);
+
+            // 保存 JSON
+            if (modified) {
+                try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
+                    objectMapper.writeValue(writer, jsonConfig);
+                } catch (IOException e) {
+                    writeLog(String.format("ERROR: Failed to save JSON file: %s", e.getMessage()));
+                    System.exit(1);
+                }
+                writeLog(String.format("JSON config saved to: %s", jsonFile));
+                writeLog("Config content:");
+                try {
+                    objectMapper.writeValue(System.out, jsonConfig);
+                } catch (IOException e) {
+                    writeLog(String.format("ERROR: Failed to write JSON to console: %s", e.getMessage()));
+                }
+            } else {
+                writeLog("No updates needed");
+            }
         }
 
         writeLog("Processing completed");
@@ -236,16 +339,45 @@ public class CsvToJson {
         writeLog(String.format("Converting file from %s to UTF-8...", encoding));
 
         try {
-            // 读取文件内容
-            Charset charset = StandardCharsets.UTF_8;
-            if (encoding.equals("Unicode")) {
-                charset = Charset.forName("UTF-16LE");
-            } else if (encoding.equals("BigEndianUnicode")) {
-                charset = Charset.forName("UTF-16BE");
-            }
-
             byte[] bytes = Files.readAllBytes(Paths.get(filePath));
-            String content = new String(bytes, charset);
+            String content = null;
+            Charset usedCharset = null;
+
+            if (encoding.equals("Default")) {
+                // 尝试使用常见编码进行解码
+                String[] encodingsToTry = {"UTF-8", "GBK", "GB2312", "ISO-8859-1"};
+                for (String encName : encodingsToTry) {
+                    try {
+                        Charset charset = Charset.forName(encName);
+                        content = new String(bytes, charset);
+                        // 简单验证内容是否有效
+                        if (content != null && (content.matches(".*[a-zA-Z0-9].*") || content.length() > 0)) {
+                            usedCharset = charset;
+                            writeLog(String.format("Successfully decoded with encoding: %s", encName));
+                            break;
+                        }
+                    } catch (Exception e) {
+                        // 忽略解码错误，尝试下一个编码
+                    }
+                }
+
+                if (content == null) {
+                    // 如果所有编码都失败，使用默认编码
+                    content = new String(bytes, Charset.defaultCharset());
+                    usedCharset = Charset.defaultCharset();
+                    writeLog(String.format("Using default encoding as fallback: %s", usedCharset.name()));
+                }
+            } else {
+                // 使用检测到的编码
+                Charset charset = StandardCharsets.UTF_8;
+                if (encoding.equals("Unicode")) {
+                    charset = Charset.forName("UTF-16LE");
+                } else if (encoding.equals("BigEndianUnicode")) {
+                    charset = Charset.forName("UTF-16BE");
+                }
+                content = new String(bytes, charset);
+                usedCharset = charset;
+            }
 
             // 写入 UTF-8 编码
             Files.write(Paths.get(filePath), content.getBytes(StandardCharsets.UTF_8));

@@ -210,6 +210,40 @@ Or with custom configuration file:
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations -ConfigFile "batch-config.json"
 ```
 
+### 5. Initialize Git SSH Configuration
+
+#### Java Version (cross-platform):
+
+**Generate SSH keys, configure SSH config, and set Git settings for all Git servers:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com"
+```
+
+**Generate SSH keys only for specific Git server:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "generate" -Server "github"
+```
+
+**Configure SSH config only:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "config" -Server "all"
+```
+
+**Using YML configuration file:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml"
+```
+
+**Using YML configuration file without Git config:**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml" -GitConfig false
+```
+
 ## Configuration Files
 
 ### skills.csv
@@ -259,17 +293,17 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
         {
           "repoName": "anthropics_skills",
           "repoUrl": "https://github.com/anthropics/skills.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics"
         },
         {
           "repoName": "staruhub_ClaudeSkills",
           "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub"
         },
         {
           "repoName": "obra_superpowers",
           "repoUrl": "https://github.com/obra/superpowers.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra"
         }
       ]
     },
@@ -316,12 +350,12 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     {
       "repoName": "anthropics_skills",
       "repoUrl": "https://github.com/anthropics/skills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics"
     },
     {
       "repoName": "staruhub_ClaudeSkills",
       "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub"
     }
   ]
 }
@@ -381,7 +415,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Executes multiple operations in sequence
    - For `init` operations: calls `InitSkillRepo` to clone repositories
    - For `sync` operations: creates temporary config and calls `SyncSkills`
+   - For `ssh` operations: calls `InitGitSsh` to configure SSH settings
    - Provides comprehensive logging of all operations
+
+5. **InitGitSsh.java**:
+   - Generates SSH key pairs for Git servers
+   - Configures SSH config file with server-specific settings
+   - Supports multiple Git servers (Gitee, GitHub, GitCode)
+   - Provides command-line interface for configuration
+   - Supports configuration via YML and JSON files
+   - Configures global Git settings (user.name, user.email, etc.)
+   - Configures repository-specific Git settings
+   - Supports control of Git configuration via -GitConfig parameter
 
 ## Requirements
 

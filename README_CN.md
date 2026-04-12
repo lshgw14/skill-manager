@@ -208,6 +208,40 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations -ConfigFile "batch-config.json"
 ```
 
+### 5. 初始化Git SSH配置
+
+#### Java 版本（跨平台）：
+
+**生成SSH密钥并配置所有Git服务端的SSH设置：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com"
+```
+
+**只为特定Git服务端生成SSH密钥：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "generate" -Server "github"
+```
+
+**只配置SSH config文件：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "config" -Server "all"
+```
+
+**使用配置文件：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml"
+```
+
+**使用配置文件但不配置Git：**
+
+```bash
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml" -GitConfig false
+```
+
 ## 配置文件说明
 
 ### skills.csv
@@ -257,17 +291,17 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
         {
           "repoName": "anthropics_skills",
           "repoUrl": "https://github.com/anthropics/skills.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics"
         },
         {
           "repoName": "staruhub_ClaudeSkills",
           "repoUrl": "https://github.com/staruhub/ClaudeSkills.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub"
         },
         {
           "repoName": "obra_superpowers",
           "repoUrl": "https://github.com/obra/superpowers.git",
-          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra\\superpowers\\skills"
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra"
         }
       ]
     },
@@ -314,12 +348,12 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
     {
       "repoName": "anthropics_skills",
       "repoUrl": "https://github.com/anthropics/skills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics\\skills\\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics"
     },
     {
       "repoName": "staruhub_ClaudeSkills",
       "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
-      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub\\ClaudeSkills\\skills"
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub"
     }
   ]
 }
@@ -379,7 +413,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 顺序执行多个操作
    - 对于 `init` 操作：调用 `InitSkillRepo` 克隆仓库
    - 对于 `sync` 操作：创建临时配置并调用 `SyncSkills`
+   - 对于 `ssh` 操作：调用 `InitGitSsh` 配置SSH设置
    - 提供所有操作的详细日志
+
+5. **InitGitSsh.java**：
+   - 为Git服务端生成SSH密钥对
+   - 配置SSH config文件，添加服务端特定设置
+   - 支持多个Git服务端（Gitee、GitHub、GitCode）
+   - 提供命令行界面进行配置
+   - 支持通过YML和JSON文件进行配置
+   - 配置全局Git设置（user.name、user.email等）
+   - 配置仓库特定的Git设置
+   - 支持通过-GitConfig参数控制是否配置Git
 
 ## 系统要求
 

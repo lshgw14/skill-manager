@@ -84,6 +84,13 @@ public class BatchOperations {
                         failCount++;
                     }
                     break;
+                case "ssh":
+                    if (executeSshOperation(operation)) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                    }
+                    break;
                 default:
                     writeLog(String.format("ERROR: Invalid operation type: %s", operationType));
                     failCount++;
@@ -277,6 +284,80 @@ public class BatchOperations {
                 writeLog(String.format("WARNING: Failed to delete temp config file: %s", ex.getMessage()));
                 ex.printStackTrace();
             }
+            return false;
+        }
+    }
+
+    private static boolean executeSshOperation(Map<String, Object> operation) {
+        writeLog("Executing SSH operation...");
+
+        String email = (String) operation.get("email");
+        String action = (String) operation.get("action");
+        String server = (String) operation.get("server");
+        String configFile = (String) operation.get("configFile");
+        Boolean gitConfig = (Boolean) operation.get("gitConfig");
+
+        // 构建命令参数
+        List<String> commandArgs = new ArrayList<>();
+        commandArgs.add("java");
+        commandArgs.add("-cp");
+        commandArgs.add("target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar");
+        commandArgs.add("com.skillmanager.InitGitSsh");
+
+        // 添加GitConfig参数
+        if (gitConfig != null) {
+            commandArgs.add("-GitConfig");
+            commandArgs.add(gitConfig.toString());
+        }
+
+        if (!Strings.isNullOrEmpty(configFile)) {
+            commandArgs.add("-ConfigFile");
+            commandArgs.add(configFile);
+        } else {
+            if (Strings.isNullOrEmpty(email)) {
+                writeLog("ERROR: email not specified for SSH operation");
+                return false;
+            }
+            commandArgs.add("-Email");
+            commandArgs.add(email);
+
+            if (!Strings.isNullOrEmpty(action)) {
+                commandArgs.add("-Action");
+                commandArgs.add(action);
+            }
+
+            if (!Strings.isNullOrEmpty(server)) {
+                commandArgs.add("-Server");
+                commandArgs.add(server);
+            }
+        }
+
+        // 执行命令
+        try {
+            ProcessBuilder pb = new ProcessBuilder(commandArgs);
+            pb.directory(new File("."));
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            // 读取输出
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    writeLog(String.format("SSH output: %s", line));
+                }
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                writeLog("SSH operation completed successfully!");
+                return true;
+            } else {
+                writeLog("ERROR: Failed to execute SSH operation");
+                return false;
+            }
+        } catch (Exception e) {
+            writeLog(String.format("ERROR: SSH operation error: %s", e.getMessage()));
+            e.printStackTrace();
             return false;
         }
     }

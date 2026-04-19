@@ -1,0 +1,31 @@
+{
+  "batchOperations": [
+    {
+      "type": "ssh",
+      "email": "test@example.com",
+      "action": "config",
+      "server": "gitee"
+    },
+    {
+      "type": "init",
+      "repos": [
+        {
+          "repoName": "mattpocock_skills",
+          "repoUrl": "git@github.com:mattpocock/skills.git",
+          "localPath": "E:\\develop\\code\\open-source\\github\\skills\\mattpocock"
+        }
+      ]
+    },
+    {
+      "type": "sync",
+      "targetPath": "C:\\Users\\admin\\.trae-cn\\skills\\",
+      "repos": [
+        {
+          "repoName": "mattpocock_skills",
+          "repoPath": "E:\\develop\\code\\open-source\\github\\skills\\mattpocock\\skills",
+          "skillNames": ["write-a-prd"]
+        }
+      ]
+    }
+  ]
+}

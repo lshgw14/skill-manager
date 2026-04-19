@@ -1,0 +1,49 @@
+{
+  "repos": [
+    {
+      "repoName": "mattpocock_skills",
+      "repoUrl": "git@github.com:mattpocock/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\mattpocock"
+    },
+    {
+      "repoName": "obra_superpowers",
+      "repoUrl": "git@github.com:obra/superpowers.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\obra"
+    },
+    {
+      "repoName": "vercel-labs_skills",
+      "repoUrl": "git@github.com:vercel-labs/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\vercel-labs"
+    },
+    {
+      "repoName": "YuJunZhiXue_github-skill-forge",
+      "repoUrl": "git@github.com:YuJunZhiXue/github-skill-forge.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\YuJunZhiXue"
+    },
+    {
+      "repoName": "staruhub_ClaudeSkills",
+      "repoUrl": "git@github.com:staruhub/ClaudeSkills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\staruhub"
+    },
+    {
+      "repoName": "coreyhaines31_marketingskills",
+      "repoUrl": "git@github.com:coreyhaines31/marketingskills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\coreyhaines31"
+    },
+    {
+      "repoName": "wshobson_agents",
+      "repoUrl": "git@github.com:wshobson/agents.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\wshobson"
+    },
+    {
+      "repoName": "anthropics_skills",
+      "repoUrl": "git@github.com:anthropics/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\anthropics"
+    },
+    {
+      "repoName": "MiniMax-AI_skills",
+      "repoUrl": "git@github.com:MiniMax-AI/skills.git",
+      "localPath": "E:\\develop\\code\\open-source\\github\\skills\\MiniMax-AI"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "git": {
+    "global": {
+      "user.name": "Test User",
+      "user.email": "test@example.com",
+      "core.editor": "vim",
+      "pull.rebase": "false"
+    },
+    "repos": [
+      {
+        "path": "E:\\develop\\code\\open-source\\github\\skills",
+        "config": {
+          "user.name": "Test User",
+          "user.email": "test@example.com"
+        }
+      }
+    ]
+  },
+  "servers": [
+    {
+      "name": "gitee",
+      "host": "gitee.com",
+      "port": 22,
+      "user": "test@example.com",
+      "identityFile": "~/.ssh/id_rsa.gitee"
+    },
+    {
+      "name": "github",
+      "host": "github.com",
+      "port": 22,
+      "user": "test@example.com",
+      "identityFile": "~/.ssh/id_rsa.github"
+    },
+    {
+      "name": "gitcode",
+      "host": "gitcode.com",
+      "port": 22,
+      "user": "test@example.com",
+      "identityFile": "~/.ssh/id_rsa.gitcode"
+    }
+  ]
+}

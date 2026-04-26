@@ -1,6 +1,6 @@
 # Skill Manager 技能同步工具
 
-一个跨平台的技能同步工具，用于从多个 Git 仓库同步技能文件到目标目录，同时提供 PowerShell 和 Python 版本。
+一个跨平台的技能同步工具，用于从多个 Git 仓库同步技能文件到目标目录，同时提供 PowerShell、Python、Java 和 Go 版本。
 
 ## 功能特性
 
@@ -29,15 +29,30 @@ skill-manager/
 │   │   ├── CsvToJson.java       # CSV 转 JSON 配置工具
 │   │   ├── SyncSkills.java       # 主同步脚本
 │   │   ├── InitSkillRepo.java    # 仓库初始化脚本
-│   │   └── BatchOperations.java  # 批量操作脚本
+│   │   ├── BatchOperations.java  # 批量操作脚本
+│   │   └── InitGitSsh.java       # Git SSH 初始化脚本
 │   ├── pom.xml          # Maven 配置
 │   ├── build.bat         # Windows 构建脚本
 │   └── build.sh         # Linux/macOS 构建脚本
+├── go/                  # Go 版本（跨平台）
+│   ├── csv-to-json.go   # CSV 转 JSON 配置工具
+│   ├── sync-skills.go   # 主同步脚本
+│   ├── init-skill-repo.go # 仓库初始化脚本
+│   ├── batch-operations.go # 批量操作脚本
+│   ├── main.go          # Git SSH 初始化脚本
+│   ├── build.bat        # 构建脚本
+│   └── go.mod           # Go 模块
 ├── skills.csv           # 技能列表（CSV 格式）
+├── skills-example.csv   # 示例技能列表
 ├── sync-config.json     # 同步配置（JSON 格式）
+├── init-config.json     # 仓库初始化配置
 ├── batch-config.json    # 批量操作配置（JSON 格式）
+├── git-ssh-config.yml   # SSH 配置模板
+├── GIT_GUIDE.md         # Git 操作指南
+├── AGENTS.md            # AI 指令文件
 ├── README.md            # 英文说明文档
-└── README_CN.md         # 中文说明文档
+├── README_CN.md         # 中文说明文档
+└── LICENSE              # MIT 许可证
 ```
 
 ## 使用方法
@@ -58,13 +73,13 @@ E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staru
 #### PowerShell 版本（仅 Windows）：
 
 ```powershell
-.owershellsv-to-json.ps1
+.\powershell\csv-to-json.ps1
 ```
 
 或使用自定义参数：
 
 ```powershell
-.owershellsv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
+.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
 #### Python 版本（跨平台）：
@@ -426,6 +441,13 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - 配置仓库特定的Git设置
    - 支持通过-GitConfig参数控制是否配置Git
 
+### Go 版本：
+1. **csv-to-json.go**：读取 `skills.csv`，按 `repoPath` 合并，输出同步或初始化配置
+2. **sync-skills.go**：读取 `sync-config.json`，执行 `git pull` 后复制文件
+3. **init-skill-repo.go**：通过 `-RepoUrl`/`-LocalPath` 或 `-ConfigFile` 克隆仓库
+4. **batch-operations.go**：从 `batch-config.json` 链式执行 init/sync/ssh 操作
+5. **main.go (init-git-ssh)**：生成 SSH 密钥，配置 SSH config 和 Git 设置
+
 ## 系统要求
 
 ### PowerShell 版本（仅 Windows）：
@@ -434,14 +456,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 - Robocopy（Windows 内置）
 
 ### Python 版本（跨平台）：
-- Python 3.6+
+- Python 3.7+
 - Git（用于 `git pull`）
 
 ### Java 版本（跨平台）：
 - Java 21+
 - Maven 3.6+
-- Git（用于 `git pull`）
+- 使用 JGIT（无需外部 Git 命令行工具）
 - SSH支持：使用 Apache MINA SSHD 进行 SSH 连接
+
+### Go 版本（跨平台）：
+- Go 1.26+
+- Git（用于 `git pull`）
 
 ## 注意事项
 

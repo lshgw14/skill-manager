@@ -1,6 +1,6 @@
 # Skill Manager
 
-A cross-platform skill synchronization tool for managing and syncing skills from multiple Git repositories to a target directory, available in both PowerShell and Python versions.
+A cross-platform skill synchronization tool for managing and syncing skills from multiple Git repositories to a target directory, available in PowerShell, Python, Java, and Go versions.
 
 ## Features
 
@@ -29,15 +29,30 @@ skill-manager/
 │   │   ├── CsvToJson.java       # CSV to JSON config converter
 │   │   ├── SyncSkills.java       # Main sync script
 │   │   ├── InitSkillRepo.java    # Repo initialization script
-│   │   └── BatchOperations.java  # Batch operations script
+│   │   ├── BatchOperations.java  # Batch operations script
+│   │   └── InitGitSsh.java       # Git SSH initialization script
 │   ├── pom.xml          # Maven configuration
 │   ├── build.bat         # Windows build script
 │   └── build.sh         # Linux/macOS build script
+├── go/                  # Go version (cross-platform)
+│   ├── csv-to-json.go   # CSV to JSON config converter
+│   ├── sync-skills.go   # Main sync script
+│   ├── init-skill-repo.go # Repo initialization script
+│   ├── batch-operations.go # Batch operations script
+│   ├── main.go          # Git SSH initialization script
+│   ├── build.bat        # Build script
+│   └── go.mod           # Go module
 ├── skills.csv           # Skill list (CSV format)
+├── skills-example.csv   # Example skill list
 ├── sync-config.json     # Sync configuration (JSON format)
-├── batch-config.json    # Batch operations configuration (JSON format)
+├── init-config.json     # Repo initialization config
+├── batch-config.json    # Batch operations configuration
+├── git-ssh-config.yml   # SSH configuration template
+├── GIT_GUIDE.md         # Git workflow guide
+├── AGENTS.md            # AI instruction file
 ├── README.md            # This file
-└── README_CN.md         # Chinese README
+├── README_CN.md         # Chinese README
+└── LICENSE              # MIT License
 ```
 
 ## Usage
@@ -428,6 +443,13 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
    - Configures repository-specific Git settings
    - Supports control of Git configuration via -GitConfig parameter
 
+### Go Version:
+1. **csv-to-json.go**: Reads `skills.csv`, merges by `repoPath`, outputs sync or init config
+2. **sync-skills.go**: Reads `sync-config.json`, runs `git pull` then copies files
+3. **init-skill-repo.go**: Clones repos via `-RepoUrl`/`-LocalPath` or batch via `-ConfigFile`
+4. **batch-operations.go**: Chains init/sync/ssh operations from `batch-config.json`
+5. **main.go (init-git-ssh)**: Generates SSH keys, configures SSH config and Git settings
+
 ## Requirements
 
 ### PowerShell Version (Windows only):
@@ -436,14 +458,18 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 - Robocopy (built-in on Windows)
 
 ### Python Version (cross-platform):
-- Python 3.6+
+- Python 3.7+
 - Git (for `git pull`)
 
 ### Java Version (cross-platform):
 - Java 21+
 - Maven 3.6+
-- Git (for `git pull`)
+- Uses JGIT (no external Git CLI required)
 - SSH support: Uses Apache MINA SSHD for SSH connections
+
+### Go Version (cross-platform):
+- Go 1.26+
+- Git (for `git pull`)
 
 ## Notes
 

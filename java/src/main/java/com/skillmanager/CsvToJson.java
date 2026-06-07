@@ -7,6 +7,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.base.Splitter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.mozilla.universalchardet.UniversalDetector;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +24,6 @@ import java.util.*;
 public class CsvToJson {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final Splitter CSV_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
     public static void main(String[] args) {
         // 解析命令行参数
@@ -48,35 +51,57 @@ public class CsvToJson {
             System.exit(1);
         }
 
-        // 转换为 UTF-8 编码
-        if (!convertToUtf8(csvPath.toString())) {
-            writeLog("ERROR: Failed to ensure UTF-8 encoding for CSV file");
+        // 检测 CSV 文件编码并读取
+        byte[] bytes;
+        try {
+            bytes = Files.readAllBytes(csvPath);
+        } catch (IOException e) {
+            writeLog(String.format("ERROR: Failed to read CSV file: %s", e.getMessage()));
+            e.printStackTrace();
             System.exit(1);
+            return;
+        }
+
+        Charset charset = detectCharset(bytes);
+        writeLog(String.format("Detected encoding: %s", charset.name()));
+
+        String content = new String(bytes, charset);
+
+        // 写回 UTF-8 编码，确保文件被统一为 UTF-8
+        try {
+            Files.write(csvPath, content.getBytes(StandardCharsets.UTF_8));
+            writeLog("File converted to UTF-8");
+        } catch (IOException e) {
+            writeLog(String.format("ERROR: Failed to write UTF-8 file: %s", e.getMessage()));
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        // 去除 UTF-8 BOM
+        if (content.startsWith("\uFEFF")) {
+            content = content.substring(1);
         }
 
         writeLog(String.format("Reading CSV file: %s", csvPath));
 
         // 读取 CSV 文件
         List<Map<String, String>> csvData = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(csvPath, StandardCharsets.UTF_8)) {
-            String headerLine = reader.readLine();
-            if (Strings.isNullOrEmpty(headerLine)) {
+        try (CSVParser parser = CSVFormat.RFC4180
+                .withFirstRecordAsHeader()
+                .withTrim()
+                .parse(new StringReader(content))) {
+
+            List<String> headers = parser.getHeaderNames();
+
+            if (headers.isEmpty()) {
                 writeLog("WARNING: CSV file is empty");
                 System.exit(0);
             }
 
-            // 处理 UTF-8 BOM
-            if (headerLine.startsWith("\uFEFF")) {
-                headerLine = headerLine.substring(1);
-            }
-
-            List<String> headers = Lists.newArrayList(CSV_SPLITTER.split(headerLine));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                List<String> values = Lists.newArrayList(CSV_SPLITTER.split(line));
+            for (CSVRecord record : parser) {
                 Map<String, String> row = Maps.newHashMap();
-                for (int i = 0; i < Math.min(headers.size(), values.size()); i++) {
-                    row.put(headers.get(i), values.get(i));
+                for (String header : headers) {
+                    row.put(header, record.get(header));
                 }
                 csvData.add(row);
             }
@@ -313,93 +338,15 @@ public class CsvToJson {
         System.out.printf("[%s] %s%n", timestamp, message);
     }
 
-    private static String getFileEncoding(String filePath) {
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            byte[] bytes = new byte[4];
-            int read = fis.read(bytes);
-
-            if (read >= 3 && bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
-                return "UTF8";
-            }
-            if (read >= 2 && bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFE) {
-                return "Unicode";
-            }
-            if (read >= 2 && bytes[0] == (byte) 0xFE && bytes[1] == (byte) 0xFF) {
-                return "BigEndianUnicode";
-            }
-            return "Default";
-        } catch (Exception e) {
-            return "Locked";
+    private static Charset detectCharset(byte[] bytes) {
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(bytes, 0, bytes.length);
+        detector.dataEnd();
+        String detected = detector.getDetectedCharset();
+        if (detected != null) {
+            return Charset.forName(detected);
         }
-    }
-
-    private static boolean convertToUtf8(String filePath) {
-        String encoding = getFileEncoding(filePath);
-        writeLog(String.format("Detected encoding: %s", encoding));
-
-        if (encoding.equals("UTF8")) {
-            writeLog("File is already UTF-8, no conversion needed");
-            return true;
-        }
-
-        if (encoding.equals("Locked")) {
-            writeLog("WARNING: File is locked by another process, skipping encoding conversion");
-            writeLog("Please close the file in other applications and try again if encoding issues occur");
-            return true;
-        }
-
-        writeLog(String.format("Converting file from %s to UTF-8...", encoding));
-
-        try {
-            byte[] bytes = Files.readAllBytes(Paths.get(filePath));
-            String content = null;
-            Charset usedCharset = null;
-
-            if (encoding.equals("Default")) {
-                // 尝试使用常见编码进行解码
-                String[] encodingsToTry = {"UTF-8", "GBK", "GB2312", "ISO-8859-1"};
-                for (String encName : encodingsToTry) {
-                    try {
-                        Charset charset = Charset.forName(encName);
-                        content = new String(bytes, charset);
-                        // 简单验证内容是否有效
-                        if (content != null && (content.matches(".*[a-zA-Z0-9].*") || content.length() > 0)) {
-                            usedCharset = charset;
-                            writeLog(String.format("Successfully decoded with encoding: %s", encName));
-                            break;
-                        }
-                    } catch (Exception e) {
-                        // 忽略解码错误，尝试下一个编码
-                    }
-                }
-
-                if (content == null) {
-                    // 如果所有编码都失败，使用默认编码
-                    content = new String(bytes, Charset.defaultCharset());
-                    usedCharset = Charset.defaultCharset();
-                    writeLog(String.format("Using default encoding as fallback: %s", usedCharset.name()));
-                }
-            } else {
-                // 使用检测到的编码
-                Charset charset = StandardCharsets.UTF_8;
-                if (encoding.equals("Unicode")) {
-                    charset = Charset.forName("UTF-16LE");
-                } else if (encoding.equals("BigEndianUnicode")) {
-                    charset = Charset.forName("UTF-16BE");
-                }
-                content = new String(bytes, charset);
-                usedCharset = charset;
-            }
-
-            // 写入 UTF-8 编码
-            Files.write(Paths.get(filePath), content.getBytes(StandardCharsets.UTF_8));
-
-            writeLog("Conversion completed successfully");
-            return true;
-        } catch (Exception e) {
-            writeLog(String.format("ERROR: Failed to convert encoding: %s", e.getMessage()));
-            e.printStackTrace();
-            return false;
-        }
+        writeLog("WARNING: Encoding detection returned null, falling back to UTF-8");
+        return StandardCharsets.UTF_8;
     }
 }

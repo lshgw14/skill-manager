@@ -11,6 +11,7 @@ import sys
 import csv
 import json
 import argparse
+import chardet
 from datetime import datetime
 
 
@@ -20,74 +21,30 @@ def write_log(message):
     print(f"[{timestamp}] {message}")
 
 
-def get_file_encoding(file_path):
-    """Detect file encoding"""
+def detect_and_convert_to_utf8(file_path):
+    """Detect file encoding using chardet and convert to UTF-8"""
     try:
         with open(file_path, 'rb') as f:
-            bytes_data = f.read(4)
-        
-        if len(bytes_data) >= 3 and bytes_data[0] == 0xEF and bytes_data[1] == 0xBB and bytes_data[2] == 0xBF:
-            return "UTF8"
-        if len(bytes_data) >= 2 and bytes_data[0] == 0xFF and bytes_data[1] == 0xFE:
-            return "Unicode"
-        if len(bytes_data) >= 2 and bytes_data[0] == 0xFE and bytes_data[1] == 0xFF:
-            return "BigEndianUnicode"
-        return "Default"
-    except Exception:
-        return "Locked"
+            raw = f.read()
+    except Exception as e:
+        write_log(f"ERROR: Failed to read file: {e}")
+        return False
 
+    result = chardet.detect(raw)
+    detected_encoding = result['encoding'] or 'utf-8'
+    confidence = result.get('confidence', 0)
+    write_log(f"Detected encoding: {detected_encoding} (confidence: {confidence:.2%})")
 
-def convert_to_utf8(file_path):
-    """Convert file to UTF-8 encoding"""
-    encoding = get_file_encoding(file_path)
-    write_log(f"Detected encoding: {encoding}")
-    
-    if encoding == "UTF8":
-        write_log("File is already UTF-8, no conversion needed")
+    # 如果已经是 UTF-8，跳过写回
+    if detected_encoding.lower() in ('utf-8', 'utf-8-sig', 'ascii'):
+        write_log("File is already UTF-8 or ASCII, no conversion needed")
         return True
-    
-    if encoding == "Locked":
-        write_log("WARNING: File is locked by another process, skipping encoding conversion")
-        write_log("Please close the file in other applications and try again if encoding issues occur")
-        return True
-    
-    write_log(f"Converting file from {encoding} to UTF-8...")
-    
+
+    write_log(f"Converting file from {detected_encoding} to UTF-8...")
     try:
-        if encoding == "Default":
-            # 尝试使用常见编码进行解码
-            encodings_to_try = ['utf-8', 'gbk', 'gb2312', 'latin-1']
-            content = None
-            used_encoding = None
-            
-            for enc in encodings_to_try:
-                try:
-                    with open(file_path, 'r', encoding=enc) as f:
-                        content = f.read()
-                    # 简单验证内容是否有效
-                    if content and (any(c.isalnum() for c in content) or len(content) > 0):
-                        used_encoding = enc
-                        write_log(f"Successfully decoded with encoding: {enc}")
-                        break
-                except UnicodeDecodeError:
-                    # 忽略解码错误，尝试下一个编码
-                    pass
-            
-            if not content:
-                # 如果所有编码都失败，使用 'replace' 模式
-                with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
-                    content = f.read()
-                used_encoding = 'utf-8 (with replace)'
-                write_log("Using utf-8 with replace as fallback")
-        else:
-            # 使用检测到的编码
-            with open(file_path, 'r', encoding=encoding.lower() if encoding != "Default" else 'utf-8', errors='replace') as f:
-                content = f.read()
-        
-        # Write with UTF-8
+        content = raw.decode(detected_encoding)
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
-        
         write_log("Conversion completed successfully")
         return True
     except Exception as e:
@@ -117,7 +74,7 @@ def main():
         sys.exit(1)
     
     # Convert to UTF-8
-    if not convert_to_utf8(csv_full_path):
+    if not detect_and_convert_to_utf8(csv_full_path):
         write_log("ERROR: Failed to ensure UTF-8 encoding for CSV file")
         sys.exit(1)
     

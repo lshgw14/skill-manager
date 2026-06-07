@@ -55,24 +55,21 @@ function ConvertTo-Utf8 {
         $sourceEncoding = $null
         
         if ($encoding -eq "Default") {
-            # 尝试使用常见编码进行解码
+            # 严格 UTF-8 编码器：不写 BOM，遇到无效字节抛异常
+            $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
+            
             $encodingsToTry = @(
-                [System.Text.Encoding]::Default,
-                [System.Text.Encoding]::GetEncoding("GBK"),
-                [System.Text.Encoding]::GetEncoding("GB2312"),
-                [System.Text.Encoding]::UTF8
+                $utf8Strict,                         # UTF-8 严格模式放首位
+                [System.Text.Encoding]::Default      # 中文系统下=GBK 兜底
             )
             
             $content = $null
             foreach ($enc in $encodingsToTry) {
                 try {
                     $content = $enc.GetString($bytes)
-                    # 简单验证内容是否有效
-                    if ($content -match "[a-zA-Z0-9]" -or $content.Length -gt 0) {
-                        $sourceEncoding = $enc
-                        Write-Log "Successfully decoded with encoding: $($enc.EncodingName)"
-                        break
-                    }
+                    $sourceEncoding = $enc
+                    Write-Log "Successfully decoded with encoding: $($enc.EncodingName)"
+                    break
                 } catch {
                     # 忽略解码错误，尝试下一个编码
                 }

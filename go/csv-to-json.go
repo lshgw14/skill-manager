@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/saintfish/chardet"
+	"golang.org/x/net/html/charset"
+	"golang.org/x/text/transform"
 )
 
 // 全局变量
@@ -112,24 +117,54 @@ func main() {
 
 // 读取CSV文件
 func readCsvFile(csvPath string) ([]map[string]string, error) {
-	file, err := os.Open(csvPath)
+	// 读取原始字节
+	raw, err := ioutil.ReadFile(csvPath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	reader := csv.NewReader(file)
+	// 检测编码
+	detector := chardet.NewTextDetector()
+	result, err := detector.DetectBest(raw)
+	detectedCharset := "UTF-8"
+	if err == nil && result.Charset != "" {
+		detectedCharset = result.Charset
+	}
+	writeLog(fmt.Sprintf("Detected encoding: %s", detectedCharset))
+
+	// 转换为UTF-8并写回
+	detectedUpper := strings.ToUpper(detectedCharset)
+	if detectedUpper != "UTF-8" && detectedUpper != "ASCII" && !strings.HasPrefix(detectedUpper, "UTF-8") {
+		writeLog(fmt.Sprintf("Converting file from %s to UTF-8...", detectedCharset))
+		enc, _ := charset.Lookup(detectedCharset)
+		if enc != nil {
+			utf8Bytes, _, err := transform.Bytes(enc.NewDecoder(), raw)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode %s: %v", detectedCharset, err)
+			}
+			if err := ioutil.WriteFile(csvPath, utf8Bytes, 0644); err != nil {
+				return nil, fmt.Errorf("failed to write UTF-8 file: %v", err)
+			}
+			writeLog("File converted to UTF-8")
+			raw = utf8Bytes
+		} else {
+			writeLog(fmt.Sprintf("WARNING: Unsupported charset: %s, proceeding with raw bytes", detectedCharset))
+		}
+	} else {
+		writeLog("File is already UTF-8 or ASCII, no conversion needed")
+	}
+
+	// 去除UTF-8 BOM
+	raw = bytes.TrimPrefix(raw, []byte{0xEF, 0xBB, 0xBF})
+
+	// 解析CSV
+	reader := csv.NewReader(bytes.NewReader(raw))
 	reader.TrimLeadingSpace = true
 
 	// 读取表头
 	headers, err := reader.Read()
 	if err != nil {
 		return nil, err
-	}
-
-	// 处理UTF-8 BOM
-	if len(headers) > 0 && strings.HasPrefix(headers[0], "\ufeff") {
-		headers[0] = strings.TrimPrefix(headers[0], "\ufeff")
 	}
 
 	// 读取数据

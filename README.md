@@ -1,276 +1,275 @@
-# Skill Manager
+# Skill Manager 技能同步工具
 
-A cross-platform skill synchronization tool for managing and syncing skills from multiple Git repositories to a target directory, available in PowerShell, Python, Java, and Go versions.
+一个跨平台的技能同步工具，用于从多个 Git 仓库同步技能文件到目标目录，同时提供 PowerShell、Python、Java 和 Go 版本。
 
-## Features
+## 功能特性
 
-- **Multi-repo Support**: Sync skills from multiple Git repositories
-- **Config-driven**: Use JSON config file for batch synchronization
-- **CSV Management**: Easy skill management via CSV file with auto-conversion to JSON
-- **Git Integration**: Automatic `git pull` before each sync
-- **Robocopy Powered**: Reliable file copying with mirror mode
-- **Encoding Auto-detection**: Automatic UTF-8 conversion for CSV files
-- **Detailed Logging**: Comprehensive logging with directory tree verification
-- **Batch Operations**: Execute multiple operations (init and sync) in sequence via configuration file
-- **SSH Support**: Clone repositories using SSH URLs (Java version)
+- **多仓库支持**：从多个 Git 仓库同步技能
+- **配置驱动**：使用 JSON 配置文件进行批量同步
+- **CSV 管理**：通过 CSV 文件轻松管理技能，自动转换为 JSON
+- **Git 集成**：每次同步前自动执行 `git pull`
+- **Robocopy 驱动**：使用镜像模式进行可靠的文件复制
+- **编码自动检测**：自动将 CSV 文件转换为 UTF-8 编码
+- **详细日志**：完整的日志记录，包含目录树验证
+- **批量操作**：通过配置文件顺序执行多个操作（初始化和同步）
+- **SSH 支持**：使用 SSH URL 克隆仓库（Java 版本）
 
-## File Structure
+## 文件结构
 
 ```
 skill-manager/
-├── powershell/          # PowerShell version (Windows only)
-│   ├── sync-skills.ps1  # Main sync script
-│   └── csv-to-json.ps1  # CSV to JSON config converter
-├── python/              # Python version (cross-platform)
-│   ├── sync-skills.py   # Main sync script
-│   └── csv-to-json.py   # CSV to JSON config converter
-├── java/                # Java version (cross-platform)
+├── powershell/          # PowerShell 版本（仅 Windows）
+│   ├── sync-skills.ps1  # 主同步脚本
+│   └── csv-to-json.ps1  # CSV 转 JSON 配置工具
+├── python/              # Python 版本（跨平台）
+│   ├── sync-skills.py   # 主同步脚本
+│   ├── csv-to-json.py   # CSV 转 JSON 配置工具
+│   └── requirements.txt # Python 依赖
+├── java/                # Java 版本（跨平台）
 │   ├── src/main/java/com/skillmanager/
-│   │   ├── CsvToJson.java       # CSV to JSON config converter
-│   │   ├── SyncSkills.java       # Main sync script
-│   │   ├── InitSkillRepo.java    # Repo initialization script
-│   │   ├── BatchOperations.java  # Batch operations script
-│   │   └── InitGitSsh.java       # Git SSH initialization script
-│   ├── pom.xml          # Maven configuration
-│   ├── build.bat         # Windows build script
-│   └── build.sh         # Linux/macOS build script
-├── go/                  # Go version (cross-platform)
-│   ├── csv-to-json.go   # CSV to JSON config converter
-│   ├── sync-skills.go   # Main sync script
-│   ├── init-skill-repo.go # Repo initialization script
-│   ├── batch-operations.go # Batch operations script
-│   ├── main.go          # Git SSH initialization script
-│   ├── build.bat        # Build script
-│   └── go.mod           # Go module
-├── skills.csv           # Skill list (CSV format)
-├── skills-example.csv   # Example skill list
-├── sync-config.json     # Sync configuration (JSON format)
-├── init-config.json     # Repo initialization config
-├── batch-config.json    # Batch operations configuration
-├── git-ssh-config.yml   # SSH configuration template
-├── GIT_GUIDE.md         # Git workflow guide
-├── AGENTS.md            # AI instruction file
-├── README.md            # This file
-├── README_CN.md         # Chinese README
-└── LICENSE              # MIT License
+│   │   ├── CsvToJson.java       # CSV 转 JSON 配置工具
+│   │   ├── SyncSkills.java       # 主同步脚本
+│   │   ├── InitSkillRepo.java    # 仓库初始化脚本
+│   │   ├── BatchOperations.java  # 批量操作脚本
+│   │   └── InitGitSsh.java       # Git SSH 初始化脚本
+│   ├── pom.xml          # Maven 配置
+│   ├── build.bat         # Windows 构建脚本
+│   └── build.sh         # Linux/macOS 构建脚本
+├── go/                  # Go 版本（跨平台）
+│   ├── csv-to-json.go   # CSV 转 JSON 配置工具
+│   ├── sync-skills.go   # 主同步脚本
+│   ├── init-skill-repo.go # 仓库初始化脚本
+│   ├── batch-operations.go # 批量操作脚本
+│   ├── main.go          # Git SSH 初始化脚本
+│   ├── build.bat        # 构建脚本
+│   └── go.mod           # Go 模块
+├── skills.csv           # 技能列表（CSV 格式）
+├── skills-example.csv   # 示例技能列表
+├── sync-config.json     # 同步配置（JSON 格式）
+├── init-config.json     # 仓库初始化配置
+├── batch-config.json    # 批量操作配置（JSON 格式）
+├── git-ssh-config.yml   # SSH 配置模板
+├── GIT_GUIDE.md         # Git 操作指南
+├── AGENTS.md            # AI 指令文件
+├── README_EN.md         # 英文说明文档
+├── README.md            # 中文说明文档
+└── LICENSE              # MIT 许可证
 ```
 
-## Usage
+## 使用方法
 
-### 1. Prepare CSV Configuration
+### 1. 准备 CSV 配置
 
-Edit `skills.csv` to add your skills:
+编辑 `skills.csv` 添加你的技能：
 
 ```csv
 repoPath,repoName,localPath,repoUrl,skillName,description
-E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-1,Skill description 1
-E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-2,Skill description 2
-E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staruhub/ClaudeSkills.git,skill-name-3,Skill description 3
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-1,技能描述 1
+E:\path\to\repo1,anthropics_skills,E:\path\to\repo1,https://github.com/anthropics/skills.git,skill-name-2,技能描述 2
+E:\path\to\repo2,staruhub_ClaudeSkills,E:\path\to\repo2,https://github.com/staruhub/ClaudeSkills.git,skill-name-3,技能描述 3
 ```
 
-### 2. Convert CSV to JSON
+### 2. 转换 CSV 为 JSON
 
-#### PowerShell Version (Windows only):
+#### PowerShell 版本（仅 Windows）：
 
 ```powershell
 .\powershell\csv-to-json.ps1
 ```
 
-Or with custom parameters:
+或使用自定义参数：
 
 ```powershell
-.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\csv-to-json.ps1 -CsvFile ".\skills.csv" -JsonFile ".\sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-#### Python Version (cross-platform):
+#### Python 版本（跨平台）：
 
 ```bash
 python python/csv-to-json.py
 ```
 
-Or with custom parameters:
+或使用自定义参数：
 
 ```bash
-python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+python python/csv-to-json.py -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-#### Java Version (cross-platform):
+#### Java 版本（跨平台）：
 
-The Java version uses Eclipse JGIT library for Git operations, which provides better cross-platform compatibility and eliminates the need for Git command line tool.
-
-**Advantages of using JGIT:**
-- No dependency on Git command line tool
-- Better cross-platform compatibility
-- More flexible error handling
-- Cleaner code structure
-
-First, build the project:
+首先构建项目：
 
 ```bash
 # Windows
-.\java\build.bat
+java/build.bat
 
 # Linux/macOS
 chmod +x java/build.sh
 ./java/build.sh
 ```
 
-Then run the scripts:
-
-**Convert CSV to JSON:**
+然后运行 CSV 转 JSON 工具：
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson
 ```
 
-Or with custom parameters:
+或使用自定义参数：
 
 ```bash
-java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.CsvToJson -CsvFile "skills.csv" -JsonFile "sync-config.json" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-### 3. Sync Skills
+### 3. 同步技能
 
-#### PowerShell Version (Windows only):
+#### PowerShell 版本（仅 Windows）：
 
-Sync all skills from config file:
+从配置文件同步所有技能：
 
 ```powershell
 .\powershell\sync-skills.ps1 -ConfigFile ".\sync-config.json"
 ```
 
-Sync a single skill:
+同步单个技能：
 
 ```powershell
-.\powershell\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-Sync all skills from a repository:
+同步仓库中的所有技能：
 
 ```powershell
-.\powershell\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+.\powershell\sync-skills.ps1 -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-#### Python Version (cross-platform):
+#### Python 版本（跨平台）：
 
-Sync all skills from config file:
+从配置文件同步所有技能：
 
 ```bash
 python python/sync-skills.py -ConfigFile "sync-config.json"
 ```
 
-Sync a single skill:
+同步单个技能：
 
 ```bash
-python python/sync-skills.py -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+python python/sync-skills.py -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-Sync all skills from a repository:
+同步仓库中的所有技能：
 
 ```bash
-python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+python python/sync-skills.py -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\"
 ```
 
-#### Java Version (cross-platform):
+#### Java 版本（跨平台）：
 
-**Sync all skills from config file:**
+Java 版本使用 Eclipse JGIT 库执行 Git 操作，提供更好的跨平台兼容性，并且不需要 Git 命令行工具。
+
+**使用 JGIT 的优势：**
+- 不依赖 Git 命令行工具
+- 更好的跨平台兼容性
+- 更灵活的错误处理
+- 更简洁的代码结构
+
+从配置文件同步所有技能：
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -ConfigFile "sync-config.json"
 ```
 
-**Sync a single skill:**
+同步单个技能：
 
 ```bash
-java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -SkillName "skill-name" -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\" 
 ```
 
-**Sync all skills from a repository:**
+同步仓库中的所有技能：
 
 ```bash
-java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\your-username\.trae-cn\skills\"
+java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.SyncSkills -RepoPath "E:\path\to\repo" -TargetPath "C:\Users\你的用户名\.trae-cn\skills\" 
 ```
 
-### 4. Initialize Skill Repositories
+### 4. 初始化技能仓库
 
-#### Java Version (cross-platform):
+#### Java 版本（跨平台）：
 
-**Initialize a skill repository (HTTPS):**
+**初始化技能仓库（HTTPS）：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "https://github.com/anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
 ```
 
-**Initialize a skill repository (SSH):**
+**初始化技能仓库（SSH）：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -RepoUrl "git@github.com:anthropics/skills.git" -LocalPath "E:\path\to\local\repo"
 ```
 
-**Initialize multiple repositories from config file:**
+**从配置文件初始化多个仓库：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitSkillRepo -ConfigFile "init-config.json"
 ```
 
-**Execute batch operations:**
+**执行批量操作：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations
 ```
 
-Or with custom configuration file:
+或使用自定义配置文件：
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.BatchOperations -ConfigFile "batch-config.json"
 ```
 
-### 5. Initialize Git SSH Configuration
+### 5. 初始化Git SSH配置
 
-#### Java Version (cross-platform):
+#### Java 版本（跨平台）：
 
-**Generate SSH keys, configure SSH config, and set Git settings for all Git servers:**
+**生成SSH密钥并配置所有Git服务端的SSH设置：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com"
 ```
 
-**Generate SSH keys only for specific Git server:**
+**只为特定Git服务端生成SSH密钥：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "generate" -Server "github"
 ```
 
-**Configure SSH config only:**
+**只配置SSH config文件：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -Email "your-email@example.com" -Action "config" -Server "all"
 ```
 
-**Using YML configuration file:**
+**使用配置文件：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml"
 ```
 
-**Using YML configuration file without Git config:**
+**使用配置文件但不配置Git：**
 
 ```bash
 java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.skillmanager.InitGitSsh -ConfigFile "git-ssh-config.yml" -GitConfig false
 ```
 
-## Configuration Files
+## 配置文件说明
 
 ### skills.csv
 
-| Column | Description |
-|--------|-------------|
-| repoPath | Path to the Git repository containing skills |
-| repoName | A friendly name for the repository (e.g., "anthropics_skills" for "E:\develop\code\open-source\github\skills\anthropics\skills\skills") |
-| localPath | Local path to the Git repository (used for init-config.json) |
-| repoUrl | GitHub repository URL (e.g., "https://github.com/anthropics/skills.git") |
-| skillName | Name of the skill directory to sync |
-| description | Brief description of the skill |
+| 列名 | 说明 |
+|------|------|
+| repoPath | 包含技能的 Git 仓库路径 |
+| repoName | 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"） |
+| localPath | Git 仓库的本地路径（用于 init-config.json） |
+| repoUrl | GitHub 仓库 URL（例如，"https://github.com/anthropics/skills.git"） |
+| skillName | 要同步的技能目录名称 |
+| description | 技能的简要描述 |
 
 ### sync-config.json
 
@@ -292,10 +291,10 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 }
 ```
 
-**Fields explanation:**
-- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "E:\develop\code\open-source\github\skills\anthropics\skills\skills")
-- `repoPath`: The local path to the repository
-- `skillNames`: List of skill names to sync
+**字段说明：**
+- `repoName`: 仓库的友好名称（例如，对于 "E:\develop\code\open-source\github\skills\anthropics\skills\skills"，repoName 就是 "anthropics_skills"）
+- `repoPath`: 仓库的本地路径
+- `skillNames`: 要同步的技能名称列表
 
 ### batch-config.json
 
@@ -347,15 +346,15 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 }
 ```
 
-**Fields explanation for init operation:**
-- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "https://github.com/anthropics/skills.git")
-- `repoUrl`: The Git repository URL
-- `localPath`: The local path to clone the repository to
+**init 操作字段说明：**
+- `repoName`: 仓库的友好名称（例如，对于 "https://github.com/anthropics/skills.git"，repoName 就是 "anthropics_skills"）
+- `repoUrl`: Git 仓库 URL
+- `localPath`: 克隆仓库的本地路径
 
-**Fields explanation for sync operation:**
-- `repoName`: A friendly name for the repository
-- `repoPath`: The local path to the repository
-- `skillNames`: List of skill names to sync
+**sync 操作字段说明：**
+- `repoName`: 仓库的友好名称
+- `repoPath`: 仓库的本地路径
+- `skillNames`: 要同步的技能名称列表
 
 ### init-config.json
 
@@ -376,108 +375,109 @@ java -cp java/target/skill-manager-1.0-SNAPSHOT-jar-with-dependencies.jar com.sk
 }
 ```
 
-**Fields explanation:**
-- `repoName`: A friendly name for the repository (e.g., "anthropics_skills" for "https://github.com/anthropics/skills.git")
-- `repoUrl`: The Git repository URL
-- `localPath`: The local path to clone the repository to
+**字段说明：**
+- `repoName`: 仓库的友好名称（例如，对于 "https://github.com/anthropics/skills.git"，repoName 就是 "anthropics_skills"）
+- `repoUrl`: Git 仓库 URL
+- `localPath`: 克隆仓库的本地路径
 
-## How It Works
+## 工作原理
 
-### PowerShell Version:
-1. **csv-to-json.ps1**:
-   - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
-   - Merges skills by `repoPath` (one-to-many relationship)
-   - Updates `sync-config.json` (add/modify only, no deletion)
-   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
+### PowerShell 版本：
+1. **csv-to-json.ps1**：
+   - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
+   - 按 `repoPath` 合并技能（一对多关系）
+   - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
-2. **sync-skills.ps1**:
-   - Reads `sync-config.json`
-   - For each skill: `git pull` → `robocopy /E /MIR`
-   - Logs directory tree before and after copy for verification
+2. **sync-skills.ps1**：
+   - 读取 `sync-config.json`
+   - 对每个技能执行：`git pull` → `robocopy /E /MIR`
+   - 复制前后打印目录树用于验证
 
-### Python Version:
-1. **csv-to-json.py**:
-   - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
-   - Merges skills by `repoPath` (one-to-many relationship)
-   - Updates `sync-config.json` (add/modify only, no deletion)
-   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
+### Python 版本：
+1. **csv-to-json.py**：
+   - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
+   - 按 `repoPath` 合并技能（一对多关系）
+   - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
-2. **sync-skills.py**:
-   - Reads `sync-config.json`
-   - For each skill: `git pull` → cross-platform file copy
-   - Logs directory tree before and after copy for verification
+2. **sync-skills.py**：
+   - 读取 `sync-config.json`
+   - 对每个技能执行：`git pull` → 跨平台文件复制
+   - 复制前后打印目录树用于验证
 
-### Java Version:
-1. **CsvToJson.java**:
-   - Reads `skills.csv` with auto UTF-8 encoding detection/conversion
-   - Merges skills by `repoPath` (one-to-many relationship)
-   - Updates `sync-config.json` (add/modify only, no deletion)
-   - Supports conversion to `init-config.json` with `-OutputType "init"` parameter
+### Java 版本：
+1. **CsvToJson.java**：
+   - 读取 `skills.csv`，自动检测/转换 UTF-8 编码
+   - 按 `repoPath` 合并技能（一对多关系）
+   - 更新 `sync-config.json`（只增不改，不删除）
+   - 支持使用 `-OutputType "init"` 参数转换为 `init-config.json`
 
-2. **SyncSkills.java**:
-   - Reads `sync-config.json`
-   - For each skill: `git pull` → cross-platform file copy
-   - Logs directory tree before and after copy for verification
+2. **SyncSkills.java**：
+   - 读取 `sync-config.json`
+   - 对每个技能执行：`git pull` → 跨平台文件复制
+   - 复制前后打印目录树用于验证
 
-3. **InitSkillRepo.java**:
-   - Clones a remote Git repository to a local path
-   - Supports command-line parameters for repo URL and local path
-   - Provides detailed logging of the cloning process
-   - Supports both HTTPS and SSH URLs for cloning
+3. **InitSkillRepo.java**：
+   - 克隆远程 Git 仓库到本地路径
+   - 支持命令行参数指定仓库 URL 和本地路径
+   - 提供详细的克隆过程日志
+   - 支持 HTTPS 和 SSH URL 克隆
 
-4. **BatchOperations.java**:
-   - Reads `batch-config.json` configuration file
-   - Executes multiple operations in sequence
-   - For `init` operations: calls `InitSkillRepo` to clone repositories
-   - For `sync` operations: creates temporary config and calls `SyncSkills`
-   - For `ssh` operations: calls `InitGitSsh` to configure SSH settings
-   - Provides comprehensive logging of all operations
+4. **BatchOperations.java**：
+   - 读取 `batch-config.json` 配置文件
+   - 顺序执行多个操作
+   - 对于 `init` 操作：调用 `InitSkillRepo` 克隆仓库
+   - 对于 `sync` 操作：创建临时配置并调用 `SyncSkills`
+   - 对于 `ssh` 操作：调用 `InitGitSsh` 配置SSH设置
+   - 提供所有操作的详细日志
 
-5. **InitGitSsh.java**:
-   - Generates SSH key pairs for Git servers
-   - Configures SSH config file with server-specific settings
-   - Supports multiple Git servers (Gitee, GitHub, GitCode)
-   - Provides command-line interface for configuration
-   - Supports configuration via YML and JSON files
-   - Configures global Git settings (user.name, user.email, etc.)
-   - Configures repository-specific Git settings
-   - Supports control of Git configuration via -GitConfig parameter
+5. **InitGitSsh.java**：
+   - 为Git服务端生成SSH密钥对
+   - 配置SSH config文件，添加服务端特定设置
+   - 支持多个Git服务端（Gitee、GitHub、GitCode）
+   - 提供命令行界面进行配置
+   - 支持通过YML和JSON文件进行配置
+   - 配置全局Git设置（user.name、user.email等）
+   - 配置仓库特定的Git设置
+   - 支持通过-GitConfig参数控制是否配置Git
 
-### Go Version:
-1. **csv-to-json.go**: Reads `skills.csv`, merges by `repoPath`, outputs sync or init config
-2. **sync-skills.go**: Reads `sync-config.json`, runs `git pull` then copies files
-3. **init-skill-repo.go**: Clones repos via `-RepoUrl`/`-LocalPath` or batch via `-ConfigFile`
-4. **batch-operations.go**: Chains init/sync/ssh operations from `batch-config.json`
-5. **main.go (init-git-ssh)**: Generates SSH keys, configures SSH config and Git settings
+### Go 版本：
+1. **csv-to-json.go**：读取 `skills.csv`，按 `repoPath` 合并，输出同步或初始化配置
+2. **sync-skills.go**：读取 `sync-config.json`，执行 `git pull` 后复制文件
+3. **init-skill-repo.go**：通过 `-RepoUrl`/`-LocalPath` 或 `-ConfigFile` 克隆仓库
+4. **batch-operations.go**：从 `batch-config.json` 链式执行 init/sync/ssh 操作
+5. **main.go (init-git-ssh)**：生成 SSH 密钥，配置 SSH config 和 Git 设置
 
-## Requirements
+## 系统要求
 
-### PowerShell Version (Windows only):
+### PowerShell 版本（仅 Windows）：
 - Windows PowerShell 5.1+
-- Git (for `git pull`)
-- Robocopy (built-in on Windows)
+- Git（用于 `git pull`）
+- Robocopy（Windows 内置）
 
-### Python Version (cross-platform):
+### Python 版本（跨平台）：
 - Python 3.7+
-- Git (for `git pull`)
+- pip install -r python/requirements.txt
+- Git（用于 `git pull`）
 
-### Java Version (cross-platform):
+### Java 版本（跨平台）：
 - Java 21+
 - Maven 3.6+
-- Uses JGIT (no external Git CLI required)
-- SSH support: Uses Apache MINA SSHD for SSH connections
+- 使用 JGIT（无需外部 Git 命令行工具）
+- SSH支持：使用 Apache MINA SSHD 进行 SSH 连接
 
-### Go Version (cross-platform):
+### Go 版本（跨平台）：
 - Go 1.26+
-- Git (for `git pull`)
+- Git（用于 `git pull`）
 
-## Notes
+## 注意事项
 
-- The CSV file will be automatically converted to UTF-8 if it uses a different encoding
-- Skills with the same `repoPath` will be merged into a single entry in JSON
-- `robocopy /MIR` will mirror the source directory, deleting extra files in target
-- Close CSV file in other applications before running `csv-to-json.ps1` to avoid file lock issues
+- CSV 文件如果使用非 UTF-8 编码会自动转换
+- 相同 `repoPath` 的技能会合并到同一个 JSON 条目中
+- `robocopy /MIR` 会镜像源目录，删除目标目录中的多余文件
+- 运行 `csv-to-json.ps1` 前请关闭其他应用中的 CSV 文件，避免文件锁定
 
-## License
+## 许可证
 
 MIT License
